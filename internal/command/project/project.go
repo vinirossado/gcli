@@ -54,6 +54,24 @@ func run(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	err = p.replacePackageName()
+	if err != nil || !yes {
+		return
+	}
+
+	err = p.replacePackageName()
+	if err != nil || !yes {
+		return
+	}
+
+	err = p.modTidy()
+	if err != nil || !yes {
+		return
+	}
+
+	p.rmGit()
+	p.installWire()
+	fmt.Printf("Instalado com sucesso")
 }
 
 /*

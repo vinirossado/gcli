@@ -1,7 +1,7 @@
 package config
 
 const (
-	WireCmd           = "https://github.com/google/wire"
+	WireCmd           = "github.com/google/wire/cmd/wire@latest"
 	GcliCmd           = "gcli"
 	RepoBase          = "https://github.com/vinirossado/DoYourLogin.git"
 	RepoFullStructure = "github.com/"
