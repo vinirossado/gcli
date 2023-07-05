@@ -37,18 +37,39 @@ func run(cmd *cobra.Command, args []string) {
 	p := NewProject()
 	if len(args) == 0 {
 		err := survey.AskOne(&survey.Input{
-			Message: "What is your project name",
+			Message: "What is your project name?",
 			Help:    "project name.",
 			Suggest: nil,
 		}, &p.ProjectName, survey.WithValidator(survey.Required))
 		if err != nil {
 			fmt.Println(err.Error())
 			return
-		} else {
-			p.ProjectName = args[0]
 		}
+	} else {
+		p.ProjectName = args[0]
 	}
+
+	yes, err := p.cloneTemplate()
+	if err != nil || !yes {
+		return
+	}
+
 }
+
+/*
+Create new API-X
+
+//Controller
+//Service
+//Model
+//Repository
+
+
+[X] Gin
+[] Martini
+[] XXA
+[] BBSD
+*/
 
 func (p Project) installWire() {
 	fmt.Printf("go install %s\n", config.WireCmd)
@@ -58,22 +79,6 @@ func (p Project) installWire() {
 	if err := cmd.Run(); err != nil {
 		log.Fatalf("go install %s error \n", err)
 	}
-}
-
-func (p *Project) replacePackageName() error {
-	packageName := helper.GetProjectName(p.ProjectName)
-	err := p.replaceFiles(packageName)
-	if err != nil {
-		return err
-	}
-	cmd := exec.Command("go", "mod", "edit", "-module", p.ProjectName)
-	cmd.Dir = p.ProjectName
-	_, err = cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println("go mod edit error: ", err)
-		return err
-	}
-	return nil
 }
 
 func (p *Project) replaceFiles(packageName string) error {
@@ -124,6 +129,88 @@ func (p *Project) rmGit() {
 			fmt.Println("Error:", err)
 		}
 	}
+}
+
+func (p *Project) cloneTemplate() (bool, error) {
+	stat, _ := os.Stat(p.ProjectName)
+	if stat != nil {
+		var overwrite = false
+
+		prompt := &survey.Confirm{
+			Message: fmt.Sprintf("Folder %s alrerady exists, do you want to overwrite it?", p.ProjectName),
+			Help:    "Remove old project and create new project",
+		}
+
+		err := survey.AskOne(prompt, &overwrite)
+		if err != nil {
+			return false, err
+		}
+		if !overwrite {
+			return false, nil
+		}
+		err = os.RemoveAll(p.ProjectName)
+		if err != nil {
+			fmt.Println("Remove old project error: ", err)
+			return false, err
+		}
+	}
+	repo := config.RepoBase
+
+	if repoURL == "" {
+		layout := ""
+		prompt := &survey.Select{
+			Message: "Please select a layout",
+			Options: []string{
+				"Advanced",
+				"Basic",
+			},
+			Description: func(value string, index int) string {
+				if index == 1 {
+					return "A basic project structure"
+				}
+				return "It has rich functions such as: Wire, Gin, SuaMae, MinhaMae, VossaMae e etc..."
+			},
+		}
+		err := survey.AskOne(prompt, &layout)
+		if err != nil {
+			return false, err
+		}
+		if layout != "Basic" {
+			repo = config.RepoFullStructure
+		}
+		err = os.RemoveAll(p.ProjectName)
+		if err != nil {
+			fmt.Println("remove old project errorr: ", err)
+			return false, err
+		}
+	} else {
+		repo = repoURL
+	}
+
+	fmt.Printf("git clone %s \n", repo)
+	cmd := exec.Command("git", "clone", repo, p.ProjectName)
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf("git clone %s error: %s\n", repo, err)
+		return false, err
+	}
+	return true, nil
+}
+
+func (p *Project) replacePackageName() error {
+	packageName := helper.GetProjectName(p.ProjectName)
+	err := p.replaceFiles(packageName)
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command("go", "mod", "edit", "-module", p.ProjectName)
+	cmd.Dir = p.ProjectName
+	_, err = cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("go mod edit error: ", err)
+		return err
+	}
+	return nil
 }
 
 func NewProject() *Project {
