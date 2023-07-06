@@ -71,23 +71,11 @@ func run(cmd *cobra.Command, args []string) {
 
 	p.rmGit()
 	p.installWire()
-	fmt.Printf("Instalado com sucesso")
+	fmt.Printf("🎉 Project \u001B[36m%s\u001B[0m created successfully!\n\n", p.ProjectName)
+	fmt.Printf("Done. Now run:\n\n")
+	fmt.Printf("› \033[36mcd %s \033[0m\n", p.ProjectName)
+	fmt.Printf("› \033[36mnunu run \033[0m\n\n")
 }
-
-/*
-Create new API-X
-
-//Controller
-//Service
-//Model
-//Repository
-
-
-[X] Gin
-[] Martini
-[] XXA
-[] BBSD
-*/
 
 func (p Project) installWire() {
 	fmt.Printf("go install %s\n", config.WireCmd)
@@ -97,34 +85,6 @@ func (p Project) installWire() {
 	if err := cmd.Run(); err != nil {
 		log.Fatalf("go install %s error \n", err)
 	}
-}
-
-func (p *Project) replaceFiles(packageName string) error {
-	err := filepath.Walk(p.ProjectName, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		if filepath.Ext(path) != ".go" {
-			return nil
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		newData := bytes.ReplaceAll(data, []byte(packageName), []byte(p.ProjectName))
-		if err := os.WriteFile(path, newData, 0644); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		fmt.Println("Walk file error: ", err)
-		return err
-	}
-	return nil
 }
 
 func (p *Project) modTidy() error {
@@ -213,6 +173,34 @@ func (p *Project) cloneTemplate() (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (p *Project) replaceFiles(packageName string) error {
+	err := filepath.Walk(p.ProjectName, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if filepath.Ext(path) != ".go" {
+			return nil
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		newData := bytes.ReplaceAll(data, []byte(packageName), []byte(p.ProjectName))
+		if err := os.WriteFile(path, newData, 0644); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Println("Walk file error: ", err)
+		return err
+	}
+	return nil
 }
 
 func (p *Project) replacePackageName() error {

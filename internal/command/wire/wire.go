@@ -12,7 +12,6 @@ var WireCmd = &cobra.Command{
 	Long:    "gcli wire [wire.go path]",
 	Example: "gcli wire cmd/server",
 	Run: func(cmd *cobra.Command, args []string) {
-
 	},
 }
 

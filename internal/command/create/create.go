@@ -87,25 +87,25 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	switch c.CreateType {
 	case "handler", "service", "repository", "model":
-		c.genFile()
+		c.generateFile()
 	case "all":
 		c.CreateType = "handler"
-		c.genFile()
+		c.generateFile()
 
 		c.CreateType = "service"
-		c.genFile()
+		c.generateFile()
 
 		c.CreateType = "repository"
-		c.genFile()
+		c.generateFile()
 
 		c.CreateType = "model"
-		c.genFile()
+		c.generateFile()
 	default:
 		log.Fatalf("Invalid handler type %s", c.CreateType)
 	}
 }
 
-func (c *Create) genFile() {
+func (c *Create) generateFile() {
 	filePath := c.FilePath
 	if filePath == "" {
 		filePath = fmt.Sprintf("internal/%s/", c.CreateType)

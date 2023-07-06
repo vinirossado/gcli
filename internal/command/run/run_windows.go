@@ -4,10 +4,16 @@ import (
 	"fmt"
 	"gcli/internal/pkg/helper"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
+	"os/exec"
 	"os/signal"
+	"path/filepath"
+	"strconv"
 	"syscall"
+	"time"
 )
 
 var quit = make(chan os.Signal, 1)
@@ -16,9 +22,9 @@ type Run struct{}
 
 var RunCmd = &cobra.Command{
 	Use:     "run",
-	Short:   "Run",
-	Long:    "Run",
-	Example: "FindMain",
+	Short:   "gcli run [main.go path]",
+	Long:    "gcli run [main.go path]",
+	Example: "gcli run source/cmd",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdArgs, programArgs := helper.SplitArgs(cmd, args)
 		var dir string
@@ -32,7 +38,6 @@ var RunCmd = &cobra.Command{
 		}
 		if dir == "" {
 			cmdPath, err := helper.FindMain(base)
-
 			if err != nil {
 				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 				return
@@ -70,8 +75,91 @@ var RunCmd = &cobra.Command{
 
 func watch(dir string, programArgs []string) {
 	print("Watching")
-	print(dir)
-	for i := 0; i < len(programArgs); i++ {
-		print(programArgs[i])
+
+	watchPath := "./"
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		fmt.Println("Error creating watcher", err)
+		return
 	}
+	defer watcher.Close()
+
+	err = filepath.Walk(watchPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() {
+			ext := filepath.Ext(info.Name())
+			if ext == ".go" || ext == ".yml" || ext == ".yaml" || ext == ".html" {
+				err = watcher.Add(path)
+				if err != nil {
+					fmt.Println("Error:", err)
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	cmd := start(dir, programArgs)
+
+	//Loop listening file modification
+	for {
+		select {
+		case <-quit:
+			err = killProcess(cmd)
+
+			if err != nil {
+				fmt.Printf("\033[31mserver exiting...\033[0m\n")
+				return
+			}
+			fmt.Printf("\033[31mserver exiting...\033[0m\n")
+			os.Exit(0)
+
+		case event := <-watcher.Events:
+			if event.Op&fsnotify.Create == fsnotify.Create ||
+				event.Op&fsnotify.Write == fsnotify.Write ||
+				event.Op&fsnotify.Remove == fsnotify.Remove {
+				fmt.Printf("\033[36mfile modified: %s\033[0m\n]", event.Name)
+				_ = killProcess(cmd)
+
+				cmd = start(dir, programArgs)
+			}
+		case err := <-watcher.Errors:
+			fmt.Println("Error:", err)
+		}
+	}
+
+}
+
+func killProcess(cmd *exec.Cmd) error {
+	if cmd.Process == nil {
+		return nil
+	}
+	pid := cmd.Process.Pid
+	taskkill := exec.Command("taskkill", "/F", "/T", "/PID", strconv.Itoa(pid))
+	err := taskkill.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func start(dir string, programArgs []string) *exec.Cmd {
+	cmd := exec.Command("go", append([]string{"run", dir}, programArgs...)...)
+	// Set a new process group to kill all child processes when the program exists
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Start()
+	if err != nil {
+		log.Fatalf("\033[33;1mcmd run failed\u001B[0m")
+	}
+	time.Sleep(time.Second)
+	fmt.Printf("\033[33;1mrunning...\033[0m\n]")
+	return cmd
 }
