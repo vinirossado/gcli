@@ -59,11 +59,6 @@ func run(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	err = p.replacePackageName()
-	if err != nil || !yes {
-		return
-	}
-
 	err = p.modTidy()
 	if err != nil || !yes {
 		return
@@ -74,7 +69,7 @@ func run(cmd *cobra.Command, args []string) {
 	fmt.Printf("🎉 Project \u001B[36m%s\u001B[0m created successfully!\n\n", p.ProjectName)
 	fmt.Printf("Done. Now run:\n\n")
 	fmt.Printf("› \033[36mcd %s \033[0m\n", p.ProjectName)
-	fmt.Printf("› \033[36mnunu run \033[0m\n\n")
+	fmt.Printf("› \033[36mgcli run \033[0m\n\n")
 }
 
 func (p Project) installWire() {
@@ -187,6 +182,8 @@ func (p *Project) replaceFiles(packageName string) error {
 			return nil
 		}
 		data, err := os.ReadFile(path)
+		fmt.Println("Antigo\n%s: ", packageName)
+		fmt.Println("Novo\n%s: ", p.ProjectName)
 		if err != nil {
 			return err
 		}
@@ -200,11 +197,13 @@ func (p *Project) replaceFiles(packageName string) error {
 		fmt.Println("Walk file error: ", err)
 		return err
 	}
+
 	return nil
 }
 
 func (p *Project) replacePackageName() error {
 	packageName := helper.GetProjectName(p.ProjectName)
+
 	err := p.replaceFiles(packageName)
 	if err != nil {
 		return err

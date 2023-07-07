@@ -24,7 +24,7 @@ func GetProjectName(dir string) string {
 	}(modFile)
 
 	var moduleName string
-	_, err = fmt.Fscanf(modFile, "%s", &moduleName)
+	_, err = fmt.Fscanf(modFile, "module %s", &moduleName)
 
 	if err != nil {
 		fmt.Println("read go mod error: ", err)
