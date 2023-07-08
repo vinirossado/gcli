@@ -107,7 +107,6 @@ func watch(dir string, programArgs []string) {
 	}
 	cmd := start(dir, programArgs)
 
-	//Loop listening file modification
 	for {
 		select {
 		case <-quit:
@@ -152,6 +151,8 @@ func killProcess(cmd *exec.Cmd) error {
 func start(dir string, programArgs []string) *exec.Cmd {
 	cmd := exec.Command("go", append([]string{"run", dir}, programArgs...)...)
 	// Set a new process group to kill all child processes when the program exists
+
+	fmt.Printf("Starting... %s\n", cmd)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

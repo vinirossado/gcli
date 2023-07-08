@@ -133,8 +133,8 @@ func (p *Project) cloneTemplate() (bool, error) {
 		prompt := &survey.Select{
 			Message: "Please select a layout",
 			Options: []string{
-				"Advanced",
 				"Basic",
+				"Advanced",
 			},
 			Description: func(value string, index int) string {
 				if index == 1 {
@@ -170,6 +170,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 
 func (p *Project) replaceFiles(packageName string) error {
 	err := filepath.Walk(p.ProjectName, func(path string, info os.FileInfo, err error) error {
+
 		if err != nil {
 			return err
 		}

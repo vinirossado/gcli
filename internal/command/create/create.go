@@ -32,7 +32,6 @@ var CreateCmd = &cobra.Command{
 	Example: "gcli create handler user",
 	Args:    cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-
 	},
 }
 
