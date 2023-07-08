@@ -1,3 +1,6 @@
+//go:build windows
+// +build windows
+
 package run
 
 import (
@@ -74,8 +77,6 @@ var RunCmd = &cobra.Command{
 }
 
 func watch(dir string, programArgs []string) {
-	print("Watching")
-
 	watchPath := "./"
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {

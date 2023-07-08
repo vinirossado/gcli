@@ -110,6 +110,7 @@ func (c *Create) generateFile() {
 	if filePath == "" {
 		filePath = fmt.Sprintf("internal/%s/", c.CreateType)
 	}
+
 	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
 	if f == nil {
 		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists")

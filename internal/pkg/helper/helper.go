@@ -25,7 +25,6 @@ func GetProjectName(dir string) string {
 
 	var moduleName string
 	_, err = fmt.Fscanf(modFile, "module %s", &moduleName)
-
 	if err != nil {
 		fmt.Println("read go mod error: ", err)
 		return ""
@@ -49,9 +48,6 @@ func FindMain(base string) (map[string]string, error) {
 	if !strings.HasSuffix(wd, "/") {
 		wd += "/"
 	}
-
-	fmt.Println(wd)
-	fmt.Println(base)
 	cmdPath := make(map[string]string)
 	err = filepath.Walk(base, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -72,7 +68,6 @@ func FindMain(base string) (map[string]string, error) {
 				if err != nil {
 					return err
 				}
-
 				d, _ := filepath.Split(absPath)
 				cmdPath[strings.TrimPrefix(absPath, wd)] = d
 			}
@@ -82,7 +77,6 @@ func FindMain(base string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(cmdPath)
 
 	return cmdPath, nil
 }

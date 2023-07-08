@@ -66,7 +66,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	p.rmGit()
 	p.installWire()
-	fmt.Printf("🎉 Project \u001B[36m%s\u001B[0m created successfully!\n\n", p.ProjectName)
+	fmt.Printf("\n\n🎉 Project \u001B[36m%s\u001B[0m created successfully!\n\n", p.ProjectName)
 	fmt.Printf("Done. Now run:\n\n")
 	fmt.Printf("› \033[36mcd %s \033[0m\n", p.ProjectName)
 	fmt.Printf("› \033[36mgcli run \033[0m\n\n")
@@ -83,7 +83,6 @@ func (p Project) installWire() {
 }
 
 func (p *Project) modTidy() error {
-	fmt.Printf("go mod tidy\n")
 	cmd := exec.Command("go", "mod", "tidy")
 	cmd.Dir = p.ProjectName
 	if err := cmd.Run(); err != nil {
@@ -153,14 +152,13 @@ func (p *Project) cloneTemplate() (bool, error) {
 		}
 		err = os.RemoveAll(p.ProjectName)
 		if err != nil {
-			fmt.Println("remove old project errorr: ", err)
+			fmt.Println("remove old project error: ", err)
 			return false, err
 		}
 	} else {
 		repo = repoURL
 	}
 
-	fmt.Printf("git clone %s \n", repo)
 	cmd := exec.Command("git", "clone", repo, p.ProjectName)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
@@ -182,8 +180,6 @@ func (p *Project) replaceFiles(packageName string) error {
 			return nil
 		}
 		data, err := os.ReadFile(path)
-		fmt.Println("Antigo\n%s: ", packageName)
-		fmt.Println("Novo\n%s: ", p.ProjectName)
 		if err != nil {
 			return err
 		}
@@ -197,7 +193,6 @@ func (p *Project) replaceFiles(packageName string) error {
 		fmt.Println("Walk file error: ", err)
 		return err
 	}
-
 	return nil
 }
 
