@@ -146,7 +146,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 				"Advanced",
 			},
 			Description: func(value string, index int) string {
-				if index == 1 {
+				if index == 0 {
 					return "A basic project structure"
 				}
 				return "It has rich functions such as: Wire, Gin, SuaMae, MinhaMae, VossaMae e etc..."

@@ -106,9 +106,8 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 func (c *Create) generateFile() {
 	filePath := c.FilePath
-	fmt.Printf("GenerationFile: %s", filePath)
 	if filePath == "" {
-		filePath = fmt.Sprintf("internal/%s/", c.CreateType)
+		filePath = fmt.Sprintf("source/%s/", c.CreateType)
 	}
 
 	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
@@ -121,9 +120,7 @@ func (c *Create) generateFile() {
 		_ = f.Close()
 	}(f)
 
-	fmt.Printf("\nCreateType: %s", c.CreateType)
 	t, err := template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
-	fmt.Printf("\nT : %s", t)
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
@@ -136,8 +133,6 @@ func (c *Create) generateFile() {
 
 func createFile(dirPath string, filename string) *os.File {
 	filePath := dirPath + filename
-	fmt.Printf("Creating: %s", filePath)
-	fmt.Printf("Creating Filename: %s", filename)
 
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
