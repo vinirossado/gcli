@@ -36,41 +36,41 @@ var CreateCmd = &cobra.Command{
 }
 
 var CreateHandlerCmd = &cobra.Command{
-	Use:     "",
+	Use:     "handler",
 	Short:   "Create a new ",
-	Example: "gcli create X user",
+	Example: "gcli create handler user",
 	Args:    cobra.ExactArgs(1),
 	Run:     runCreate,
 }
 
 var CreateServiceCmd = &cobra.Command{
-	Use:     "",
+	Use:     "service",
 	Short:   "Create a new ",
-	Example: "gcli create X user",
+	Example: "gcli create service user",
 	Args:    cobra.ExactArgs(1),
 	Run:     runCreate,
 }
 
 var CreateRepositoryCmd = &cobra.Command{
-	Use:     "",
+	Use:     "repository",
 	Short:   "Create a new ",
-	Example: "gcli create X user",
+	Example: "gcli create repository user",
 	Args:    cobra.ExactArgs(1),
 	Run:     runCreate,
 }
 
 var CreateModelCmd = &cobra.Command{
-	Use:     "",
+	Use:     "model",
 	Short:   "Create a new ",
-	Example: "gcli create X user",
+	Example: "gcli create model user",
 	Args:    cobra.ExactArgs(1),
 	Run:     runCreate,
 }
 
 var CreateAllCmd = &cobra.Command{
-	Use:     "",
+	Use:     "all",
 	Short:   "Create a new ",
-	Example: "gcli create X user",
+	Example: "gcli create all user",
 	Args:    cobra.ExactArgs(1),
 	Run:     runCreate,
 }
@@ -106,6 +106,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 func (c *Create) generateFile() {
 	filePath := c.FilePath
+	fmt.Printf("GenerationFile: %s", filePath)
 	if filePath == "" {
 		filePath = fmt.Sprintf("internal/%s/", c.CreateType)
 	}
@@ -120,7 +121,9 @@ func (c *Create) generateFile() {
 		_ = f.Close()
 	}(f)
 
+	fmt.Printf("\nCreateType: %s", c.CreateType)
 	t, err := template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
+	fmt.Printf("\nT : %s", t)
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
@@ -133,6 +136,8 @@ func (c *Create) generateFile() {
 
 func createFile(dirPath string, filename string) *os.File {
 	filePath := dirPath + filename
+	fmt.Printf("Creating: %s", filePath)
+	fmt.Printf("Creating Filename: %s", filename)
 
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
@@ -142,9 +147,7 @@ func createFile(dirPath string, filename string) *os.File {
 	if stat != nil {
 		return nil
 	}
-
 	file, err := os.Create(filePath)
-
 	if err != nil {
 		log.Fatalf("Failed to create file %s: %v", filePath, err)
 	}

@@ -33,6 +33,10 @@ func init() {
 	NewCmd.Flags().StringVarP(&repoURL, "repo-url", "r", repoURL, "layout repo")
 }
 
+func NewProject() *Project {
+	return &Project{}
+}
+
 func run(cmd *cobra.Command, args []string) {
 	p := NewProject()
 	if len(args) == 0 {
@@ -50,6 +54,11 @@ func run(cmd *cobra.Command, args []string) {
 	}
 
 	yes, err := p.cloneTemplate()
+	if err != nil || !yes {
+		return
+	}
+
+	err = p.replacePackageName()
 	if err != nil || !yes {
 		return
 	}
@@ -170,7 +179,6 @@ func (p *Project) cloneTemplate() (bool, error) {
 
 func (p *Project) replaceFiles(packageName string) error {
 	err := filepath.Walk(p.ProjectName, func(path string, info os.FileInfo, err error) error {
-
 		if err != nil {
 			return err
 		}
@@ -189,6 +197,7 @@ func (p *Project) replaceFiles(packageName string) error {
 			return err
 		}
 		return nil
+
 	})
 	if err != nil {
 		fmt.Println("Walk file error: ", err)
@@ -212,8 +221,4 @@ func (p *Project) replacePackageName() error {
 		return err
 	}
 	return nil
-}
-
-func NewProject() *Project {
-	return &Project{}
 }

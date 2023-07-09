@@ -41,10 +41,12 @@ var RunCmd = &cobra.Command{
 		}
 		if dir == "" {
 			cmdPath, err := helper.FindMain(base)
+
 			if err != nil {
 				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 				return
 			}
+
 			switch len(cmdPath) {
 			case 0:
 				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current working directory")
@@ -132,7 +134,6 @@ func watch(dir string, programArgs []string) {
 			fmt.Println("Error:", err)
 		}
 	}
-
 }
 
 func killProcess(cmd *exec.Cmd) error {
