@@ -6,6 +6,7 @@ import (
 	"gcli/mustache"
 	"github.com/spf13/cobra"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -128,7 +129,11 @@ func (c *Create) generateFile() {
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
-	log.Printf("Created new %s: %s", c.CreateType, filePath+strings.ToLower(c.FileName)+".go")
+	fileSize, _ := f.Stat()
+
+	kilobytes := math.Round(float64(fileSize.Size()) / 1024)
+
+	log.Printf("Created new %s: %s (%vkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kilobytes)
 }
 
 func createFile(dirPath string, filename string) *os.File {
