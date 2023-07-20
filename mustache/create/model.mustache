@@ -1,11 +1,17 @@
 package model
 
-import "gorm.io/gorm"
+import (
+    "gorm.io/gorm"
+    "time"
+)
 
 type {{ .FileName }} struct {
-    gorm.Model
+    ID        uint   `gorm:"primarykey"`
+    CreatedAt time.Time
+    UpdatedAt time.Time
+    DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-// func (m *{{ .FileName }}) TableName() string {
-// 	return "{{ .FileNameTitleLower }}"
-// }
+func (m *{{ .FileName }}) TableName() string {
+    return "{{ .FileNameTitleLower }}"
+ }

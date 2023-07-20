@@ -5,8 +5,16 @@ import (
     "{{ .ProjectName }}/source/repository"
 )
 
+
+type Create{{.FileName}}Request struct {}
+type Update{{.FileName}}Request struct {}
+
 type {{ .FileName }}Service interface {
     Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error)
+    GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error)
+    Create{{ .FileName }}({{.FileNameTitleLower}} *Create{{.FileName}}Request) (uint, error)
+    Update{{ .FileName }}({{.FileNameTitleLower}} *Update{{.FileName}}Request) (uint, error)
+    Delete{{ .FileName }}(id uint) (uint, error)
 }
 
 type {{ .FileNameTitleLower }}Service struct {
@@ -24,4 +32,24 @@ func New{{ .FileName }}Service(service *Service, {{ .FileNameTitleLower }}Reposi
 func (s *{{ .FileNameTitleLower }}Service) Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error) {
     return s.{{ .FileNameTitleLower }}Repository.FirstById(id)
 }
+
+func (s *{{ .FileNameTitleLower }}Service) GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error) {
+    return s.{{ .FileNameTitleLower }}Repository.GetAll{{ .FileName }}()
+}
+
+func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitleLower}} Create{{.FileName}}Request) (uint, error) {
+
+    return s.{{ .FileNameTitleLower }}Repository.Create{{ .FileName }}()
+}
+
+func (s *{{ .FileNameTitleLower }}Service) Update{{ .FileName }}({{.FileNameTitleLower}} Update{{.FileName}}Request) (uint, error) {
+
+    return s.{{ .FileNameTitleLower }}Repository.Update{{ .FileName }}()
+}
+
+func (s *{{ .FileNameTitleLower }}Service) Delete{{ .FileName }}(id uint) (uint, error) {
+
+    return s.{{ .FileNameTitleLower }}Repository.Delete{{ .FileName }}()
+}
+
 

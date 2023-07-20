@@ -5,7 +5,11 @@ import (
 )
 
 type {{ .FileName }}Repository interface {
-    FirstById(id int64) (*model.{{ .FileName }}, error)
+    Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error)
+    GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error)
+    Create{{ .FileName }}({{.FileNameTitleLower}} Create{{.FileName}}Request) (uint, error)
+    Update{{ .FileName }}({{.FileNameTitleLower}} Update{{.FileName}}Request) (uint, error)
+    Delete{{ .FileName }}(id uint) (uint, error)
 }
 
 type {{ .FileNameTitleLower }}Repository struct {
@@ -18,8 +22,41 @@ func New{{ .FileName }}Repository(repository *Repository) {{ .FileName }}Reposit
     }
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) FirstById(id int64) (*model.{{ .FileName }}, error) {
+func (r *{{ .FileNameTitleLower }}Repository) Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error) {
     var {{ .FileNameTitleLower }} model.{{ .FileName }}
-    // TODO: query db
+
+    if err := r.db.Where("id = ?", id).First(&{{ .FileNameTitleLower }}).Error; err != nil {
+        return nil, errors.Wrap(err, "failed to get user by ID")
+    }
+
     return &{{ .FileNameTitleLower }}, nil
+}
+
+
+func (r *{{ .FileNameTitleLower }}) Update{{ .FileName }}(user *model.User) error {
+    if err := r.db.Save(user).Error; err != nil {
+         return errors.Wrap(err, "failed to update user")
+    }
+
+    return nil
+}
+
+func (r *{{ .FileNameTitleLower }}) GetByID(userId string) (*model.User, error) {
+    var user model.User
+    if err := r.db.Where("user_id = ?", userId).First(&user).Error; err != nil {
+        return nil, errors.Wrap(err, "failed to get user by ID")
+    }
+
+    return &user, nil
+}
+
+func (r *{{ .FileNameTitleLower }}) GetByUsername(username string) (*model.User, error) {
+    var user model.User
+    if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {
+      if err == gorm.ErrRecordNotFound {
+        return nil, nil
+      }
+        return nil, errors.Wrap(err, "failed to get user by username")
+    }
+    return &user, nil
 }

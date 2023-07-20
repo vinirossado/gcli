@@ -10,7 +10,10 @@ import (
 
 type {{ .FileName }}Handler interface {
     Get{{ .FileName }}ById(ctx *gin.Context)
+    GetAll{{ .FileName }}(ctx *gin.Context)
+    Create{{ .FileName }}(ctx *gin.Context)
     Update{{ .FileName }}(ctx *gin.Context)
+    Delete{{ .FileName }}(ctx *gin.Context)
 }
 
 type {{ .FileNameTitleLower }}Handler struct {
@@ -40,9 +43,55 @@ func (h *{{ .FileNameTitleLower }}Handler) Get{{ .FileName }}ById(ctx *gin.Conte
         resp.HandleError(ctx, http.StatusInternalServerError, 1, err.Error(), nil)
         return
     }
+
     resp.HandleSuccess(ctx, {{ .FileNameTitleLower }})
 }
 
+func (h *{{ .FileNameTitleLower }}Handler) GetAll{{ .FileName }}(ctx *gin.Context) {
+    {{ .FileNameTitleLower }}, err := h.{{ .FileNameTitleLower }}Service.GetAll{{ .FileName }}()
+    h.logger.Info("GetAll{{ .FileName }}", zap.Any("{{ .FileNameTitleLower }}", {{ .FileNameTitleLower }}))
+    if err != nil {
+        resp.HandleError(ctx, http.StatusInternalServerError, 1, err.Error(), nil)
+        return
+    }
+
+    resp.HandleSuccess(ctx, {{ .FileNameTitleLower }})
+}
+
+func (h *{{ .FileNameTitleLower }}Handler) Create{{ .FileName }}(ctx *gin.Context) {
+    req := new(service.Create{{.FileName}}Request)
+
+    if err := ctx.ShouldBindJSON(req); err != nil {
+        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        return
+    }
+
+        h.{{ .FileNameTitleLower }}Service.Create(req); err != nil {
+        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        return
+    }
+
+    resp.HandleSuccess(ctx, nil)
+}
+
 func (h *{{ .FileNameTitleLower }}Handler) Update{{ .FileName }}(ctx *gin.Context) {
+    {{.FileNameTitleLower }}Id := ctx.Param("id")
+
+    req := new(service.Update{{.FileName}}Request)
+
+    if err := ctx.ShouldBindJSON(req); err != nil {
+        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        return
+    }
+
+         h.userService.Update(req); err != nil {
+        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        return
+    }
+
+    resp.HandleSuccess(ctx, nil)
+}
+
+func (h *{{ .FileNameTitleLower }}Handler) Delete{{ .FileName }}(ctx *gin.Context) {
     resp.HandleSuccess(ctx, nil)
 }
