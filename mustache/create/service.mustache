@@ -1,16 +1,22 @@
 package service
 
 import (
+    "github.com/pkg/errors"
     "{{ .ProjectName }}/source/model"
     "{{ .ProjectName }}/source/repository"
+    "{{.ProjectName}}/pkg/helper/mapper"
 )
 
 
-type Create{{.FileName}}Request struct {}
-type Update{{.FileName}}Request struct {}
+type Create{{.FileName}}Request struct {
+    Id uint `json:"id"`
+}
+type Update{{.FileName}}Request struct {
+    Id uint `json:"id"`
+}
 
 type {{ .FileName }}Service interface {
-    Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error)
+    Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error)
     GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error)
     Create{{ .FileName }}({{.FileNameTitleLower}} *Create{{.FileName}}Request) (uint, error)
     Update{{ .FileName }}({{.FileNameTitleLower}} *Update{{.FileName}}Request) (uint, error)
@@ -29,27 +35,36 @@ func New{{ .FileName }}Service(service *Service, {{ .FileNameTitleLower }}Reposi
     }
 }
 
-func (s *{{ .FileNameTitleLower }}Service) Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error) {
-    return s.{{ .FileNameTitleLower }}Repository.FirstById(id)
+func (s *{{ .FileNameTitleLower }}Service) Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error) {
+    return s.{{ .FileNameTitleLower }}Repository.Get{{ .FileName }}ById(id)
 }
 
 func (s *{{ .FileNameTitleLower }}Service) GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error) {
     return s.{{ .FileNameTitleLower }}Repository.GetAll{{ .FileName }}()
 }
 
-func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitleLower}} Create{{.FileName}}Request) (uint, error) {
+func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitleLower}} *Create{{.FileName}}Request) (uint, error) {
 
-    return s.{{ .FileNameTitleLower }}Repository.Create{{ .FileName }}()
+    var {{.FileNameTitleLower}}Entity model.{{.FileName}}
+    mapper.Map({{.FileNameTitleLower}}, &{{.FileNameTitleLower}}Entity)
+
+    return s.{{ .FileNameTitleLower }}Repository.Create{{ .FileName }}(&{{.FileNameTitleLower}}Entity)
 }
 
-func (s *{{ .FileNameTitleLower }}Service) Update{{ .FileName }}({{.FileNameTitleLower}} Update{{.FileName}}Request) (uint, error) {
+func (s *{{ .FileNameTitleLower }}Service) Update{{ .FileName }}({{.FileNameTitleLower}} *Update{{.FileName}}Request) (uint, error) {
 
-    return s.{{ .FileNameTitleLower }}Repository.Update{{ .FileName }}()
+    var {{.FileNameTitleLower}}Entity model.{{.FileName}}
+    mapper.Map({{.FileNameTitleLower}}, &{{.FileNameTitleLower}}Entity)
+
+    return s.{{ .FileNameTitleLower }}Repository.Update{{ .FileName }}(&{{.FileNameTitleLower}}Entity)
 }
 
 func (s *{{ .FileNameTitleLower }}Service) Delete{{ .FileName }}(id uint) (uint, error) {
-
-    return s.{{ .FileNameTitleLower }}Repository.Delete{{ .FileName }}()
+    _, err := s.{{ .FileNameTitleLower }}Repository.Get{{ .FileName }}ById(id)
+    if err == nil {
+        return 0, errors.New("{{.FileNameTitleLower}} not found")
+    }
+    return s.{{ .FileNameTitleLower }}Repository.Delete{{ .FileName }}(id)
 }
 
 
