@@ -2,8 +2,8 @@ package upgrade
 
 import (
 	"fmt"
-	"gcli/config"
 	"github.com/spf13/cobra"
+	"github.com/vinirossado/gcli/config"
 	"log"
 	"os"
 	"os/exec"

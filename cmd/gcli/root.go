@@ -2,13 +2,13 @@ package gcli
 
 import (
 	"fmt"
-	"gcli/internal/command/create"
-	"gcli/internal/command/project"
-	"gcli/internal/command/run"
-	"gcli/internal/command/upgrade"
-	"gcli/internal/command/wire"
-	"gcli/internal/version"
 	"github.com/spf13/cobra"
+	"github.com/vinirossado/gcli/internal/command/create"
+	"github.com/vinirossado/gcli/internal/command/project"
+	"github.com/vinirossado/gcli/internal/command/run"
+	"github.com/vinirossado/gcli/internal/command/upgrade"
+	"github.com/vinirossado/gcli/internal/command/wire"
+	"github.com/vinirossado/gcli/internal/version"
 )
 
 var art = ".----------------.  .----------------.  .----------------.  .----------------.\n" +

@@ -1,4 +1,4 @@
-module gcli
+module github.com/vinirossado/gcli
 
 go 1.20
 

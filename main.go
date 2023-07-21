@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gcli/cmd/gcli"
+	"github.com/vinirossado/gcli/cmd/gcli"
 )
 
 func main() {

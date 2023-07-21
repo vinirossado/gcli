@@ -5,10 +5,10 @@ package run
 
 import (
 	"fmt"
-	"gcli/internal/pkg/helper"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
+	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"

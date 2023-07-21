@@ -2,9 +2,9 @@ package create
 
 import (
 	"fmt"
-	"gcli/internal/pkg/helper"
-	"gcli/mustache"
 	"github.com/spf13/cobra"
+	"github.com/vinirossado/gcli/internal/pkg/helper"
+	"github.com/vinirossado/gcli/mustache"
 	"log"
 	"math"
 	"os"
