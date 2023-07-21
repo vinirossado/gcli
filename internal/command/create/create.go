@@ -1,6 +1,7 @@
 package create
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vinirossado/gcli/internal/pkg/helper"
@@ -86,7 +87,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
 
 	switch c.CreateType {
-	case "handler", "service", "repository", "model":
+	case "handler", "service", "repository", "model", "router":
 		c.generateFile()
 	case "all":
 		c.CreateType = "handler"
@@ -99,6 +100,9 @@ func runCreate(cmd *cobra.Command, args []string) {
 		c.generateFile()
 
 		c.CreateType = "model"
+		c.generateFile()
+
+		c.CreateType = "router"
 		c.generateFile()
 	default:
 		log.Fatalf("Invalid handler type %s", c.CreateType)
@@ -129,6 +133,8 @@ func (c *Create) generateFile() {
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
+	//updateFile(filePath, strings.ToLower(c.FileName)+".go")
+
 	fileSize, _ := f.Stat()
 
 	kilobytes := math.Round(float64(fileSize.Size()) / 1024)
@@ -153,4 +159,69 @@ func createFile(dirPath string, filename string) *os.File {
 	}
 
 	return file
+}
+
+func updateFile(dirPath string, filename string) {
+	// Open the file for reading
+	fileName := "input.txt"
+	file, err := os.Open(fileName)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
+
+	// Create a temporary buffer to store the filtered lines and the new specific line
+	tempBuffer := ""
+
+	// Filter lines and append the new specific line if necessary
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Filter lines based on your criteria, for example, lines containing "filter_string"
+		if containsFilterString(line) {
+			tempBuffer += line + "\n"              // Add the selected line
+			tempBuffer += "New Line to be added\n" // Add the new specific line
+		} else {
+			tempBuffer += line + "\n" // Add other lines as they are
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error scanning file:", err)
+		return
+	}
+
+	// Reopen the file for writing
+	outputFile, err := os.Create(fileName)
+	if err != nil {
+		fmt.Println("Error creating output file:", err)
+		return
+	}
+	defer func(outputFile *os.File) {
+		err := outputFile.Close()
+		if err != nil {
+
+		}
+	}(outputFile)
+
+	// Write the contents of the temporary buffer (including selected lines and new specific line) to the file
+	_, err = outputFile.WriteString(tempBuffer)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
+
+	fmt.Println("File filtering and writing completed successfully.")
+}
+
+func containsFilterString(line string) bool {
+
+	return false
 }

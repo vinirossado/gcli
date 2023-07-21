@@ -44,7 +44,6 @@ func (s *{{ .FileNameTitleLower }}Service) GetAll{{ .FileName }}() (*[]model.{{ 
 }
 
 func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitleLower}} *Create{{.FileName}}Request) (uint, error) {
-
     var {{.FileNameTitleLower}}Entity model.{{.FileName}}
     mapper.Map({{.FileNameTitleLower}}, &{{.FileNameTitleLower}}Entity)
 
@@ -52,7 +51,6 @@ func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitl
 }
 
 func (s *{{ .FileNameTitleLower }}Service) Update{{ .FileName }}({{.FileNameTitleLower}} *Update{{.FileName}}Request) (uint, error) {
-
     var {{.FileNameTitleLower}}Entity model.{{.FileName}}
     mapper.Map({{.FileNameTitleLower}}, &{{.FileNameTitleLower}}Entity)
 

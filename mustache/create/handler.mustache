@@ -76,8 +76,6 @@ func (h *{{ .FileNameTitleLower }}Handler) Create{{ .FileName }}(ctx *gin.Contex
 }
 
 func (h *{{ .FileNameTitleLower }}Handler) Update{{ .FileName }}(ctx *gin.Context) {
-{{/*    {{.FileNameTitleLower }}Id := ctx.Param("id")*/}}
-
     req := new(service.Update{{.FileName}}Request)
 
     if err := ctx.ShouldBindJSON(req); err != nil {
