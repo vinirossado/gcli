@@ -85,7 +85,12 @@ func watch(dir string, programArgs []string) {
 		fmt.Println("Error creating watcher", err)
 		return
 	}
-	defer watcher.Close()
+	defer func(watcher *fsnotify.Watcher) {
+		err := watcher.Close()
+		if err != nil {
+
+		}
+	}(watcher)
 
 	err = filepath.Walk(watchPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
