@@ -2,7 +2,6 @@ package repository
 
 import (
     "{{ .ProjectName }}/source/model"
-    "gorm.io/gorm"
     "github.com/pkg/errors"
 )
 
@@ -24,7 +23,13 @@ func New{{ .FileName }}Repository(repository *Repository) {{ .FileName }}Reposit
     }
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) Get{{ .FileName }}ById(id int64) (*model.{{ .FileName }}, error) {
+func (r *{{ .FileNameTitleLower }}Repository) GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error) {
+    //TODO implement me
+    panic("implement me")
+}
+
+
+func (r *{{ .FileNameTitleLower }}Repository) Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error) {
     var {{ .FileNameTitleLower }} model.{{ .FileName }}
 
     if err := r.db.Where("id = ?", id).First(&{{ .FileNameTitleLower }}).Error; err != nil {
@@ -34,31 +39,42 @@ func (r *{{ .FileNameTitleLower }}Repository) Get{{ .FileName }}ById(id int64) (
     return &{{ .FileNameTitleLower }}, nil
 }
 
-
-func (r *{{ .FileNameTitleLower }}Repository) Update{{ .FileName }}(user *model.User) error {
-    if err := r.db.Save(user).Error; err != nil {
-         return errors.Wrap(err, "failed to update user")
-    }
-
-    return nil
+func (r *{{ .FileNameTitleLower }}Repository) Create{{ .FileName }}({{.FileNameTitleLower}} *model.{{ .FileName }}) (uint, error) {
+    //TODO implement me
+    panic("implement me")
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) GetByID(userId string) (*model.User, error) {
-    var user model.User
-    if err := r.db.Where("user_id = ?", userId).First(&user).Error; err != nil {
-        return nil, errors.Wrap(err, "failed to get user by ID")
+func (r *{{ .FileNameTitleLower }}Repository) Update{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error) {
+    if err := r.db.Save({{.FileNameTitleLower}}).Error; err != nil {
+         return {{.FileNameTitleLower}}.ID, errors.Wrap(err, "failed to update user")
     }
 
-    return &user, nil
+    return {{.FileNameTitleLower}}.ID, nil
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) GetByUsername(username string) (*model.User, error) {
-    var user model.User
-    if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {
-      if err == gorm.ErrRecordNotFound {
-        return nil, nil
-      }
-        return nil, errors.Wrap(err, "failed to get user by username")
-    }
-    return &user, nil
+func (r *{{ .FileNameTitleLower }}Repository) Delete{{ .FileName }}(id uint) (uint, error) {
+    //TODO implement me
+    panic("implement me")
 }
+
+
+
+{{/*func (r *{{ .FileNameTitleLower }}Repository) GetByID(userId string) (*model.User, error) {*/}}
+{{/*    var user model.User*/}}
+{{/*    if err := r.db.Where("user_id = ?", userId).First(&user).Error; err != nil {*/}}
+{{/*        return nil, errors.Wrap(err, "failed to get user by ID")*/}}
+{{/*    }*/}}
+
+{{/*    return &user, nil*/}}
+{{/*}*/}}
+
+{{/*func (r *{{ .FileNameTitleLower }}Repository) GetByUsername(username string) (*model.User, error) {*/}}
+{{/*    var user model.User*/}}
+{{/*    if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {*/}}
+{{/*      if err == gorm.ErrRecordNotFound {*/}}
+{{/*        return nil, nil*/}}
+{{/*      }*/}}
+{{/*        return nil, errors.Wrap(err, "failed to get user by username")*/}}
+{{/*    }*/}}
+{{/*    return &user, nil*/}}
+{{/*}*/}}
