@@ -1,5 +1,4 @@
 //go:build windows
-// +build windows
 
 package run
 
@@ -23,7 +22,7 @@ var quit = make(chan os.Signal, 1)
 
 type Run struct{}
 
-var RunCmd = &cobra.Command{
+var Cmd = &cobra.Command{
 	Use:     "run",
 	Short:   "gcli run [main.go path]",
 	Long:    "gcli run [main.go path]",

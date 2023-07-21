@@ -5,5 +5,8 @@ import (
 )
 
 func main() {
-	gcli.Execute()
+	err := gcli.Execute()
+	if err != nil {
+		return
+	}
 }
