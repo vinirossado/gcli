@@ -133,13 +133,14 @@ func (c *Create) generateFile() {
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
-	//updateFile(filePath, strings.ToLower(c.FileName)+".go")
 
 	fileSize, _ := f.Stat()
 
 	kilobytes := math.Round(float64(fileSize.Size()) / 1024)
 
 	log.Printf("Created new %s: %s (%vkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kilobytes)
+
+	updateFile(filePath, strings.ToLower(c.FileName)+".go")
 }
 
 func createFile(dirPath string, filename string) *os.File {
@@ -149,6 +150,7 @@ func createFile(dirPath string, filename string) *os.File {
 	if err != nil {
 		log.Fatalf("Failed to create dir %s: %v", dirPath, err)
 	}
+
 	stat, _ := os.Stat(filePath)
 	if stat != nil {
 		return nil
@@ -157,14 +159,15 @@ func createFile(dirPath string, filename string) *os.File {
 	if err != nil {
 		log.Fatalf("Failed to create file %s: %v", filePath, err)
 	}
-
 	return file
 }
 
 func updateFile(dirPath string, filename string) {
 	// Open the file for reading
-	fileName := "input.txt"
-	file, err := os.Open(fileName)
+	fileName := filename
+	print(dirPath + "http.go")
+
+	file, err := os.Open(dirPath + fileName)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
 		return
@@ -186,8 +189,8 @@ func updateFile(dirPath string, filename string) {
 
 		// Filter lines based on your criteria, for example, lines containing "filter_string"
 		if containsFilterString(line) {
-			tempBuffer += line + "\n"              // Add the selected line
-			tempBuffer += "New Line to be added\n" // Add the new specific line
+			tempBuffer += line + "\n"            // Add the selected line
+			tempBuffer += "Addicionou esse k7\n" // Add the new specific line
 		} else {
 			tempBuffer += line + "\n" // Add other lines as they are
 		}
@@ -222,6 +225,9 @@ func updateFile(dirPath string, filename string) {
 }
 
 func containsFilterString(line string) bool {
-
+	print(line)
+	if strings.Contains(line, "return r") {
+		return true
+	}
 	return false
 }

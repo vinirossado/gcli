@@ -4,15 +4,16 @@ import (
     "github.com/pkg/errors"
     "{{ .ProjectName }}/source/model"
     "{{ .ProjectName }}/source/repository"
-    "{{.ProjectName}}/pkg/helper/mapper"
+    "{{ .ProjectName}}/pkg/helper/mapper"
 )
 
 
 type Create{{.FileName}}Request struct {
-    Id uint `json:"id"`
+    ID uint `json:"id"`
 }
+
 type Update{{.FileName}}Request struct {
-    Id uint `json:"id"`
+    ID uint `json:"id"`
 }
 
 type {{ .FileName }}Service interface {
