@@ -140,7 +140,7 @@ func (c *Create) generateFile() {
 
 	log.Printf("Created new %s: %s (%vkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kilobytes)
 
-	updateFile(filePath, strings.ToLower(c.FileName)+".go")
+	//updateFile(filePath, strings.ToLower(c.FileName)+".go")
 }
 
 func createFile(dirPath string, filename string) *os.File {
@@ -189,10 +189,10 @@ func updateFile(dirPath string, filename string) {
 
 		// Filter lines based on your criteria, for example, lines containing "filter_string"
 		if containsFilterString(line) {
-			tempBuffer += line + "\n"            // Add the selected line
-			tempBuffer += "Addicionou esse k7\n" // Add the new specific line
+			tempBuffer += line + "\n" // Add the selected line
 		} else {
-			tempBuffer += line + "\n" // Add other lines as they are
+			tempBuffer += line + "\n"            // Add other lines as they are
+			tempBuffer += "Addicionou esse k7\n" // Add the new specific line
 		}
 	}
 
