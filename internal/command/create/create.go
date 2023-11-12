@@ -144,7 +144,7 @@ func (c *Create) generateFile() {
 }
 
 func createFile(dirPath string, filename string) *os.File {
-	filePath := dirPath + filename
+	filePath := filepath.Join(dirPath, filename)
 
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
