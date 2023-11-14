@@ -22,7 +22,7 @@ var quit = make(chan os.Signal, 1)
 
 type Run struct{}
 
-var Cmd = &cobra.Command{
+var RunCmd = &cobra.Command{
 	Use:     "run",
 	Short:   "gcli run [main.go path]",
 	Long:    "gcli run [main.go path]",

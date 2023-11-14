@@ -34,7 +34,7 @@ func init() {
 	rootCmd.AddCommand(project.NewCmd)
 	rootCmd.AddCommand(create.CreateCmd)
 	rootCmd.AddCommand(wire.WireCmd)
-	rootCmd.AddCommand(run.Cmd)
+	rootCmd.AddCommand(run.RunCmd)
 	rootCmd.AddCommand(upgrade.UpgradeCmd)
 	create.CreateCmd.AddCommand(create.CreateHandlerCmd)
 	create.CreateCmd.AddCommand(create.CreateServiceCmd)
