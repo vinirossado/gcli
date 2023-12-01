@@ -37,7 +37,19 @@ var CreateCmd = &cobra.Command{
 	},
 }
 
-var CreateHandlerCmd = &cobra.Command{
+var (
+	mustachePath string
+)
+
+func init() {
+	CmdCreateHandler.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
+	CmdCreateService.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
+	CmdCreateRepository.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
+	CmdCreateModel.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
+	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
+}
+
+var CmdCreateHandler = &cobra.Command{
 	Use:     "handler",
 	Short:   "Create a new ",
 	Example: "gcli create handler user",
@@ -45,7 +57,7 @@ var CreateHandlerCmd = &cobra.Command{
 	Run:     runCreate,
 }
 
-var CreateServiceCmd = &cobra.Command{
+var CmdCreateService = &cobra.Command{
 	Use:     "service",
 	Short:   "Create a new ",
 	Example: "gcli create service user",
@@ -53,7 +65,7 @@ var CreateServiceCmd = &cobra.Command{
 	Run:     runCreate,
 }
 
-var CreateRepositoryCmd = &cobra.Command{
+var CmdCreateRepository = &cobra.Command{
 	Use:     "repository",
 	Short:   "Create a new ",
 	Example: "gcli create repository user",
@@ -61,7 +73,7 @@ var CreateRepositoryCmd = &cobra.Command{
 	Run:     runCreate,
 }
 
-var CreateModelCmd = &cobra.Command{
+var CmdCreateModel = &cobra.Command{
 	Use:     "model",
 	Short:   "Create a new ",
 	Example: "gcli create model user",
@@ -69,7 +81,7 @@ var CreateModelCmd = &cobra.Command{
 	Run:     runCreate,
 }
 
-var CreateAllCmd = &cobra.Command{
+var CmdCreateAll = &cobra.Command{
 	Use:     "all",
 	Short:   "Create a new ",
 	Example: "gcli create all user",

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vinirossado/gcli/internal/command/create"
-	"github.com/vinirossado/gcli/internal/command/project"
+	"github.com/vinirossado/gcli/internal/command/new"
 	"github.com/vinirossado/gcli/internal/command/run"
 	"github.com/vinirossado/gcli/internal/command/upgrade"
 	"github.com/vinirossado/gcli/internal/command/wire"
@@ -31,15 +31,15 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(project.NewCmd)
+	rootCmd.AddCommand(new.NewCmd)
 	rootCmd.AddCommand(create.CreateCmd)
 	rootCmd.AddCommand(run.CmdRun)
-	rootCmd.AddCommand(upgrade.UpgradeCmd)
-	create.CreateCmd.AddCommand(create.CreateHandlerCmd)
-	create.CreateCmd.AddCommand(create.CreateServiceCmd)
-	create.CreateCmd.AddCommand(create.CreateRepositoryCmd)
-	create.CreateCmd.AddCommand(create.CreateModelCmd)
-	create.CreateCmd.AddCommand(create.CreateAllCmd)
+	rootCmd.AddCommand(upgrade.CmdUpgrade)
+	create.CreateCmd.AddCommand(create.CmdCreateHandler)
+	create.CreateCmd.AddCommand(create.CmdCreateService)
+	create.CreateCmd.AddCommand(create.CmdCreateRepository)
+	create.CreateCmd.AddCommand(create.CmdCreateModel)
+	create.CreateCmd.AddCommand(create.CmdCreateAll)
 
 	rootCmd.AddCommand(wire.CmdWire)
 	wire.CmdWire.AddCommand(wire.CmdWireAll)

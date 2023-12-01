@@ -1,4 +1,4 @@
-package project
+package new
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ var NewCmd = &cobra.Command{
 	Use:     "new",
 	Example: "gcli new awesome-api",
 	Short:   "Create a new Project Api",
-	Long:    "Create a new project with GCLI layout",
+	Long:    "Create a new new with GCLI layout",
 	Run:     run,
 }
 
@@ -41,8 +41,8 @@ func run(cmd *cobra.Command, args []string) {
 	p := NewProject()
 	if len(args) == 0 {
 		err := survey.AskOne(&survey.Input{
-			Message: "What is your project name?",
-			Help:    "project name.",
+			Message: "What is your new name?",
+			Help:    "new name.",
 			Suggest: nil,
 		}, &p.ProjectName, survey.WithValidator(survey.Required))
 		if err != nil {
@@ -119,7 +119,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 
 		prompt := &survey.Confirm{
 			Message: fmt.Sprintf("Folder %s alrerady exists, do you want to overwrite it?", p.ProjectName),
-			Help:    "Remove old project and create new project",
+			Help:    "Remove old new and create new new",
 		}
 
 		err := survey.AskOne(prompt, &overwrite)
@@ -131,7 +131,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 		}
 		err = os.RemoveAll(p.ProjectName)
 		if err != nil {
-			fmt.Println("Remove old project error: ", err)
+			fmt.Println("Remove old new error: ", err)
 			return false, err
 		}
 	}
@@ -147,7 +147,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 			},
 			Description: func(value string, index int) string {
 				if index == 0 {
-					return "A basic project structure"
+					return "A basic new structure"
 				}
 				return "It has rich functions such as: Wire, Gin, SuaMae, MinhaMae, VossaMae e etc..."
 			},
@@ -161,7 +161,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 		}
 		err = os.RemoveAll(p.ProjectName)
 		if err != nil {
-			fmt.Println("remove old project error: ", err)
+			fmt.Println("remove old new error: ", err)
 			return false, err
 		}
 	} else {

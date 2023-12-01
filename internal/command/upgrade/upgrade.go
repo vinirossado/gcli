@@ -9,10 +9,10 @@ import (
 	"os/exec"
 )
 
-var UpgradeCmd = &cobra.Command{
+var CmdUpgrade = &cobra.Command{
 	Use:     "upgrade",
-	Short:   "Upgrade the Gcli command.",
-	Long:    "Upgrade the Gcli command.",
+	Short:   "Upgrade the gcli command.",
+	Long:    "Upgrade the gcli command.",
 	Example: "gcli upgrade",
 	Run: func(_ *cobra.Command, _ []string) {
 		fmt.Printf("go install %s\n", config.GcliCmd)
