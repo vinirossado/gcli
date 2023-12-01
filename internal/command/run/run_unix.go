@@ -8,12 +8,14 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
+	"github.com/vinirossado/gcli/config"
 	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -23,7 +25,22 @@ var quit = make(chan os.Signal, 1)
 type Run struct {
 }
 
-var RunCmd = &cobra.Command{
+var excludeDir string
+var includeExt string
+
+func init() {
+	CmdRun.Flags().StringVarP(&excludeDir, "excludeDir", "", excludeDir, `eg: gcli run --excludeDir="tmp,vendor,.git,.idea"`)
+	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,mustache,html,yaml,yml,ini,json,mustache"`)
+	if excludeDir == "" {
+		excludeDir = config.RunExcludeDir
+	}
+	if includeExt == "" {
+		includeExt = config.RunIncludeExt
+	}
+
+}
+
+var CmdRun = &cobra.Command{
 	Use:     "run",
 	Short:   "gcli run [main.go path]",
 	Long:    "gcli run [main.go path]",
@@ -40,7 +57,7 @@ var RunCmd = &cobra.Command{
 			return
 		}
 		if dir == "" {
-			cmdPath, err := helper.FindMain(base)
+			cmdPath, err := helper.FindMain(base, excludeDir)
 
 			if err != nil {
 				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
@@ -73,6 +90,8 @@ var RunCmd = &cobra.Command{
 		}
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		fmt.Printf("\033[35mGcli run %s.\033[0m\n", dir)
+		fmt.Printf("\033[35mWatch excludeDir %s.\033[0m\n", excludeDir)
+		fmt.Printf("\033[35mWatch includeExt %s.\033[0m\n", includeExt)
 		watch(dir, programArgs)
 	},
 }
@@ -88,14 +107,31 @@ func watch(dir string, programArgs []string) {
 
 	defer watcher.Close()
 
+	excludeDirArr := strings.Split(excludeDir, ",")
+	includeExtArr := strings.Split(includeExt, ",")
+	includeExtMap := make(map[string]struct{})
+
+	for _, s := range includeExtArr {
+		includeExtMap[s] = struct{}{}
+	}
+
 	err = filepath.Walk(watchPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
+		for _, s := range excludeDirArr {
+			if s == "" {
+				continue
+			}
+			if strings.HasPrefix(path, s) {
+				return nil
+			}
+
+		}
 		if !info.IsDir() {
 			ext := filepath.Ext(info.Name())
-			if ext == ".go" || ext == ".yml" || ext == ".yaml" || ext == ".html" {
+			if _, ok := includeExtMap[strings.TrimPrefix(ext, ".")]; ok {
 				err = watcher.Add(path)
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -113,7 +149,7 @@ func watch(dir string, programArgs []string) {
 	for {
 		select {
 		case <-quit:
-			err = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+			err = syscall.Kill(-cmd.Process.Pid, syscall.SIGINT)
 
 			if err != nil {
 				fmt.Printf("\033[31mserver exiting...\033[0m\n")
@@ -123,11 +159,12 @@ func watch(dir string, programArgs []string) {
 			os.Exit(0)
 
 		case event := <-watcher.Events:
+			// The file has been modified or created
 			if event.Op&fsnotify.Create == fsnotify.Create ||
 				event.Op&fsnotify.Write == fsnotify.Write ||
 				event.Op&fsnotify.Remove == fsnotify.Remove {
 				fmt.Printf("\033[36mfile modified: %s\033[0m\n", event.Name)
-				_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+				syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 
 				cmd = start(dir, programArgs)
 			}

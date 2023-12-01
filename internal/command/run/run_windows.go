@@ -22,6 +22,21 @@ var quit = make(chan os.Signal, 1)
 
 type Run struct{}
 
+var excludeDir string
+var includeExt string
+
+func init() {
+	CmdRun.Flags().StringVarP(&excludeDir, "excludeDir", "", excludeDir, `eg: gcli run --excludeDir="tmp,vendor,.git,.idea"`)
+	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,mustache,html,yaml,yml,ini,json,mustache"`)
+	if excludeDir == "" {
+		excludeDir = config.RunExcludeDir
+	}
+	if includeExt == "" {
+		includeExt = config.RunIncludeExt
+	}
+
+}
+
 var RunCmd = &cobra.Command{
 	Use:     "run",
 	Short:   "gcli run [main.go path]",
@@ -35,20 +50,19 @@ var RunCmd = &cobra.Command{
 		}
 		base, err := os.Getwd()
 		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+			fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 			return
 		}
 		if dir == "" {
-			cmdPath, err := helper.FindMain(base)
+			cmdPath, err := helper.FindMain(base, excludeDir)
 
 			if err != nil {
-				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 				return
 			}
-
 			switch len(cmdPath) {
 			case 0:
-				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current working directory")
+				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current directory")
 				return
 			case 1:
 				for _, v := range cmdPath {
@@ -59,6 +73,7 @@ var RunCmd = &cobra.Command{
 				for k := range cmdPath {
 					cmdPaths = append(cmdPaths, k)
 				}
+				sort.Strings(cmdPaths)
 				prompt := &survey.Select{
 					Message:  "Which directory do you want to run?",
 					Options:  cmdPaths,
@@ -73,37 +88,54 @@ var RunCmd = &cobra.Command{
 		}
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		fmt.Printf("\033[35mGcli run %s.\033[0m\n", dir)
+		fmt.Printf("\033[35mWatch excludeDir %s\033[0m\n", excludeDir)
+		fmt.Printf("\033[35mWatch includeExt %s\033[0m\n", includeExt)
 		watch(dir, programArgs)
+
 	},
 }
 
 func watch(dir string, programArgs []string) {
+
+	// Listening file path
 	watchPath := "./"
+
+	// Create a new file watcher
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("Error creating watcher", err)
+		fmt.Println("Error:", err)
 		return
 	}
-	defer func(watcher *fsnotify.Watcher) {
-		err := watcher.Close()
-		if err != nil {
+	defer watcher.Close()
 
-		}
-	}(watcher)
-
+	excludeDirArr := strings.Split(excludeDir, ",")
+	includeExtArr := strings.Split(includeExt, ",")
+	includeExtMap := make(map[string]struct{})
+	for _, s := range includeExtArr {
+		includeExtMap[s] = struct{}{}
+	}
+	// Add files to watcher
 	err = filepath.Walk(watchPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
+		for _, s := range excludeDirArr {
+			if s == "" {
+				continue
+			}
+			if strings.HasPrefix(path, s) {
+				return nil
+			}
+		}
 		if !info.IsDir() {
 			ext := filepath.Ext(info.Name())
-			if ext == ".go" || ext == ".yml" || ext == ".yaml" || ext == ".html" {
+			if _, ok := includeExtMap[strings.TrimPrefix(ext, ".")]; ok {
 				err = watcher.Add(path)
 				if err != nil {
 					fmt.Println("Error:", err)
 				}
 			}
+
 		}
 		return nil
 	})
@@ -111,8 +143,10 @@ func watch(dir string, programArgs []string) {
 		fmt.Println("Error:", err)
 		return
 	}
+
 	cmd := start(dir, programArgs)
 
+	// Loop listening file modification
 	for {
 		select {
 		case <-quit:
@@ -126,11 +160,12 @@ func watch(dir string, programArgs []string) {
 			os.Exit(0)
 
 		case event := <-watcher.Events:
+			// The file has been modified or created
 			if event.Op&fsnotify.Create == fsnotify.Create ||
 				event.Op&fsnotify.Write == fsnotify.Write ||
 				event.Op&fsnotify.Remove == fsnotify.Remove {
-				fmt.Printf("\033[36mfile modified: %s\033[0m\n]", event.Name)
-				_ = killProcess(cmd)
+				fmt.Printf("\033[36mfile modified: %s\033[0m\n", event.Name)
+				killProcess(cmd)
 
 				cmd = start(dir, programArgs)
 			}
@@ -145,19 +180,18 @@ func killProcess(cmd *exec.Cmd) error {
 		return nil
 	}
 	pid := cmd.Process.Pid
+
 	taskkill := exec.Command("taskkill", "/F", "/T", "/PID", strconv.Itoa(pid))
+
 	err := taskkill.Run()
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
 func start(dir string, programArgs []string) *exec.Cmd {
 	cmd := exec.Command("go", append([]string{"run", dir}, programArgs...)...)
-	// Set a new process group to kill all child processes when the program exists
-
-	fmt.Printf("Starting... %s\n", cmd)
+	// Set a new process group to kill all child processes when the program exits
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -167,6 +201,6 @@ func start(dir string, programArgs []string) *exec.Cmd {
 		log.Fatalf("\033[33;1mcmd run failed\u001B[0m")
 	}
 	time.Sleep(time.Second)
-	fmt.Printf("\033[33;1mrunning...\033[0m\n]")
+	fmt.Printf("\033[32;1mrunning...\033[0m\n")
 	return cmd
 }

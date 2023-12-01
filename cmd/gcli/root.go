@@ -33,14 +33,16 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(project.NewCmd)
 	rootCmd.AddCommand(create.CreateCmd)
-	rootCmd.AddCommand(wire.WireCmd)
-	rootCmd.AddCommand(run.RunCmd)
+	rootCmd.AddCommand(run.CmdRun)
 	rootCmd.AddCommand(upgrade.UpgradeCmd)
 	create.CreateCmd.AddCommand(create.CreateHandlerCmd)
 	create.CreateCmd.AddCommand(create.CreateServiceCmd)
 	create.CreateCmd.AddCommand(create.CreateRepositoryCmd)
 	create.CreateCmd.AddCommand(create.CreateModelCmd)
 	create.CreateCmd.AddCommand(create.CreateAllCmd)
+
+	rootCmd.AddCommand(wire.CmdWire)
+	wire.CmdWire.AddCommand(wire.CmdWireAll)
 }
 
 func Execute() error {
