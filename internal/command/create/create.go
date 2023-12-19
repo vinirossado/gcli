@@ -50,7 +50,6 @@ func init() {
 	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 
 	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Properties of the model entity (format: name:type)")
-	CmdCreateModel.MarkFlagRequired("properties")
 }
 
 var CmdCreateHandler = &cobra.Command{
