@@ -22,6 +22,7 @@ type Create struct {
 	FileNameTitleLower string
 	FileNameFirstChar  string
 	IsFull             bool
+	Properties         map[string]string
 }
 
 func NewCreate() *Create {
@@ -47,47 +48,53 @@ func init() {
 	CmdCreateRepository.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 	CmdCreateModel.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
+
+	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Properties of the model entity (format: name:type)")
+	CmdCreateModel.MarkFlagRequired("properties")
 }
 
 var CmdCreateHandler = &cobra.Command{
 	Use:     "handler",
 	Short:   "Create a new ",
 	Example: "gcli create handler user",
-	Args:    cobra.ExactArgs(1),
-	Run:     runCreate,
+	//Args:    cobra.ExactArgs(1),
+	Run: runCreate,
 }
 
 var CmdCreateService = &cobra.Command{
 	Use:     "service",
 	Short:   "Create a new ",
 	Example: "gcli create service user",
-	Args:    cobra.ExactArgs(1),
-	Run:     runCreate,
+	//Args:    cobra.ExactArgs(1),
+	Run: runCreate,
 }
 
 var CmdCreateRepository = &cobra.Command{
 	Use:     "repository",
 	Short:   "Create a new ",
 	Example: "gcli create repository user",
-	Args:    cobra.ExactArgs(1),
-	Run:     runCreate,
+	//Args:    cobra.ExactArgs(1),
+	Run: runCreate,
 }
 
 var CmdCreateModel = &cobra.Command{
 	Use:     "model",
 	Short:   "Create a new ",
 	Example: "gcli create model user",
-	Args:    cobra.ExactArgs(1),
-	Run:     runCreate,
+	//Args:    cobra.ExactArgs(1),
+	Run: runCreate,
 }
 
 var CmdCreateAll = &cobra.Command{
 	Use:     "all",
 	Short:   "Create a new ",
 	Example: "gcli create all user",
-	Args:    cobra.ExactArgs(1),
-	Run:     runCreate,
+	////Args:    cobra.ExactArgs(1),
+	Run: runCreate,
 }
+
+var modelName string
+var properties string
 
 func runCreate(cmd *cobra.Command, args []string) {
 	c := NewCreate()
@@ -97,6 +104,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
 	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
+	c.Properties = parseProperties(properties)
 
 	switch c.CreateType {
 	case "handler", "service", "repository", "model", "router":
@@ -119,6 +127,23 @@ func runCreate(cmd *cobra.Command, args []string) {
 	default:
 		log.Fatalf("Invalid handler type %s", c.CreateType)
 	}
+}
+
+func parseProperties(properties string) map[string]string {
+	props := make(map[string]string)
+
+	pairs := strings.Split(properties, ",")
+
+	for _, pair := range pairs {
+		parts := strings.Split(pair, ":")
+		if len(parts) == 2 {
+			propName := strings.TrimSpace(parts[0])
+			propType := strings.TrimSpace(parts[1])
+			props[propName] = propType
+		}
+	}
+
+	return props
 }
 
 func (c *Create) generateFile() {

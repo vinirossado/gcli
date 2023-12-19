@@ -6,12 +6,14 @@ import (
 )
 
 type {{ .FileName }} struct {
-    ID        uint   `gorm:"primarykey"`
-    CreatedAt time.Time
-    UpdatedAt time.Time
-    DeletedAt gorm.DeletedAt `gorm:"index"`
+        ID        uint   `gorm:"primarykey"`
+    {{ range $propName, $propType := .Properties }}
+        {{ $propName }} {{ $propType }} {{ end }}
+        CreatedAt time.Time
+        UpdatedAt time.Time
+        DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 func (m *{{ .FileName }}) TableName() string {
     return "{{ .FileNameTitleLower }}"
- }
+}

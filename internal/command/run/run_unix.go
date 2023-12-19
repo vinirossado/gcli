@@ -109,6 +109,8 @@ func watch(dir string, programArgs []string) {
 
 	excludeDirArr := strings.Split(excludeDir, ",")
 	includeExtArr := strings.Split(includeExt, ",")
+
+	fmt.Printf("aaaa", excludeDirArr)
 	includeExtMap := make(map[string]struct{})
 
 	for _, s := range includeExtArr {
