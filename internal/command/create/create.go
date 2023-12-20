@@ -48,7 +48,6 @@ func init() {
 	CmdCreateRepository.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 	CmdCreateModel.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-
 	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Properties of the model entity (format: name:type)")
 }
 
@@ -88,11 +87,9 @@ var CmdCreateAll = &cobra.Command{
 	Use:     "all",
 	Short:   "Create a new ",
 	Example: "gcli create all user",
-	////Args:    cobra.ExactArgs(1),
+	//Args:    cobra.ExactArgs(1),
 	Run: runCreate,
 }
-
-var modelName string
 var properties string
 
 func runCreate(cmd *cobra.Command, args []string) {
