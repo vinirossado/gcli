@@ -1,47 +1,50 @@
 //go:build windows
+// +build windows
 
 package run
 
 import (
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/cobra"
-	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/cobra"
 )
 
 var quit = make(chan os.Signal, 1)
 
-type Run struct{}
+type Run struct {
+}
 
 var excludeDir string
 var includeExt string
 
 func init() {
 	CmdRun.Flags().StringVarP(&excludeDir, "excludeDir", "", excludeDir, `eg: gcli run --excludeDir="tmp,vendor,.git,.idea"`)
-	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,mustache,html,yaml,yml,ini,json,mustache"`)
+	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,tpl,tmpl,html,yaml,yml,toml,ini,json"`)
 	if excludeDir == "" {
 		excludeDir = config.RunExcludeDir
 	}
 	if includeExt == "" {
 		includeExt = config.RunIncludeExt
 	}
-
 }
 
-var RunCmd = &cobra.Command{
+var CmdRun = &cobra.Command{
 	Use:     "run",
 	Short:   "gcli run [main.go path]",
 	Long:    "gcli run [main.go path]",
-	Example: "gcli run source/cmd",
+	Example: "gcli run cmd/server",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdArgs, programArgs := helper.SplitArgs(cmd, args)
 		var dir string
@@ -87,7 +90,7 @@ var RunCmd = &cobra.Command{
 			}
 		}
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		fmt.Printf("\033[35mGcli run %s.\033[0m\n", dir)
+		fmt.Printf("\033[35mNunu run %s.\033[0m\n", dir)
 		fmt.Printf("\033[35mWatch excludeDir %s\033[0m\n", excludeDir)
 		fmt.Printf("\033[35mWatch includeExt %s\033[0m\n", includeExt)
 		watch(dir, programArgs)
@@ -180,9 +183,7 @@ func killProcess(cmd *exec.Cmd) error {
 		return nil
 	}
 	pid := cmd.Process.Pid
-
 	taskkill := exec.Command("taskkill", "/F", "/T", "/PID", strconv.Itoa(pid))
-
 	err := taskkill.Run()
 	if err != nil {
 		return err
