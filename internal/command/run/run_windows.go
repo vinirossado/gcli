@@ -5,6 +5,8 @@ package run
 
 import (
 	"fmt"
+	"github.com/vinirossado/gcli/config"
+	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"
