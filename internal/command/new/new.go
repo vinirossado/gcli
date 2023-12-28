@@ -135,7 +135,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 			return false, err
 		}
 	}
-	repo := config.RepoBase
+	repo := config.RepoBasicStructure
 
 	if repoURL == "" {
 		layout := ""

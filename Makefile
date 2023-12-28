@@ -13,3 +13,4 @@ build-darwin:
 .PHONY: build-windows
 build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli.exe .
+	go install .

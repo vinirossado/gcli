@@ -1,10 +1,11 @@
 package config
 
 const (
-	WireCmd           = "github.com/google/wire/cmd/wire@latest"
-	GcliCmd           = "gcli"
-	RepoBase          = "https://github.com/vinirossado/basic-template.git"
-	RepoFullStructure = "https://github.com/vinirossado/advanced-template.git"
-	RunExcludeDir     = ".git,.idea,tmp,vendor"
-	RunIncludeExt     = "go,html,yaml,yml,ini,json,xml,mustache"
+	WireCmd            = "github.com/google/wire/cmd/wire@latest"
+	GcliCmd            = "gcli"
+	RepoLiteStructure  = "https://github.com/vinirossado/gcli-lite-template.git"
+	RepoBasicStructure = "https://github.com/vinirossado/gcli-basic-template.git"
+	RepoFullStructure  = "https://github.com/vinirossado/gcli-advanced-template.git"
+	RunExcludeDir      = ".git,.idea,tmp,vendor"
+	RunIncludeExt      = "go,html,yaml,yml,ini,json,xml,mustache"
 )
