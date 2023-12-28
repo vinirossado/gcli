@@ -30,22 +30,20 @@ var includeExt string
 
 func init() {
 	CmdRun.Flags().StringVarP(&excludeDir, "excludeDir", "", excludeDir, `eg: gcli run --excludeDir="tmp,vendor,.git,.idea"`)
-	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,mustache,html,yaml,yml,ini,json,mustache"`)
-
+	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,tpl,tmpl,html,yaml,yml,toml,ini,json"`)
 	if excludeDir == "" {
 		excludeDir = config.RunExcludeDir
 	}
 	if includeExt == "" {
 		includeExt = config.RunIncludeExt
 	}
-
 }
 
 var CmdRun = &cobra.Command{
 	Use:     "run",
 	Short:   "gcli run [main.go path]",
 	Long:    "gcli run [main.go path]",
-	Example: "gcli run source/cmd",
+	Example: "gcli run cmd/server",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmdArgs, programArgs := helper.SplitArgs(cmd, args)
 		var dir string
@@ -54,19 +52,19 @@ var CmdRun = &cobra.Command{
 		}
 		base, err := os.Getwd()
 		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+			fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 			return
 		}
 		if dir == "" {
 			cmdPath, err := helper.FindMain(base, excludeDir)
 
 			if err != nil {
-				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
+				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 				return
 			}
 			switch len(cmdPath) {
 			case 0:
-				_, _ = fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current working directory")
+				fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current directory")
 				return
 			case 1:
 				for _, v := range cmdPath {
@@ -77,6 +75,8 @@ var CmdRun = &cobra.Command{
 				for k := range cmdPath {
 					cmdPaths = append(cmdPaths, k)
 				}
+				sort.Strings(cmdPaths)
+
 				prompt := &survey.Select{
 					Message:  "Which directory do you want to run?",
 					Options:  cmdPaths,
@@ -90,38 +90,38 @@ var CmdRun = &cobra.Command{
 			}
 		}
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		fmt.Printf("\033[35mGcli run %s.\033[0m\n", dir)
-		fmt.Printf("\033[35mWatch excludeDir %s.\033[0m\n", excludeDir)
-		fmt.Printf("\033[35mWatch includeExt %s.\033[0m\n", includeExt)
+		fmt.Printf("\033[35mgcli run %s.\033[0m\n", dir)
+		fmt.Printf("\033[35mWatch excludeDir %s\033[0m\n", excludeDir)
+		fmt.Printf("\033[35mWatch includeExt %s\033[0m\n", includeExt)
 		watch(dir, programArgs)
+
 	},
 }
 
 func watch(dir string, programArgs []string) {
+
+	// Listening file path
 	watchPath := "./"
 
+	// Create a new file watcher
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("Error creating watcher", err)
+		fmt.Println("Error:", err)
 		return
 	}
-
 	defer watcher.Close()
 
 	excludeDirArr := strings.Split(excludeDir, ",")
 	includeExtArr := strings.Split(includeExt, ",")
-
 	includeExtMap := make(map[string]struct{})
-
 	for _, s := range includeExtArr {
 		includeExtMap[s] = struct{}{}
 	}
-
+	// Add files to watcher
 	err = filepath.Walk(watchPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
 		for _, s := range excludeDirArr {
 			if s == "" {
 				continue
@@ -129,7 +129,6 @@ func watch(dir string, programArgs []string) {
 			if strings.HasPrefix(path, s) {
 				return nil
 			}
-
 		}
 		if !info.IsDir() {
 			ext := filepath.Ext(info.Name())
@@ -146,8 +145,10 @@ func watch(dir string, programArgs []string) {
 		fmt.Println("Error:", err)
 		return
 	}
+
 	cmd := start(dir, programArgs)
 
+	// Loop listening file modification
 	for {
 		select {
 		case <-quit:
@@ -178,13 +179,13 @@ func watch(dir string, programArgs []string) {
 
 func start(dir string, programArgs []string) *exec.Cmd {
 	cmd := exec.Command("go", append([]string{"run", dir}, programArgs...)...)
+	// Set a new process group to kill all child processes when the program exits
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	err := cmd.Start()
-
 	if err != nil {
 		log.Fatalf("\033[33;1mcmd run failed\u001B[0m")
 	}
