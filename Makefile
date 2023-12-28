@@ -2,6 +2,7 @@
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli .
 	sudo cp ./bin/gcli /usr/bin/
+	go install .
 
 .PHONY: build-darwin
 build-darwin:
