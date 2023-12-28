@@ -142,6 +142,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 		prompt := &survey.Select{
 			Message: "Please select a layout",
 			Options: []string{
+				"Lite",
 				"Basic",
 				"Advanced",
 			},
@@ -156,7 +157,10 @@ func (p *Project) cloneTemplate() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if layout != "Basic" {
+		if layout == "Lite" {
+			repo = config.RepoLiteStructure
+		}
+		if layout == "Advanced" {
 			repo = config.RepoFullStructure
 		}
 		err = os.RemoveAll(p.ProjectName)
@@ -208,7 +212,6 @@ func (p *Project) replaceFiles(packageName string) error {
 
 func (p *Project) replacePackageName() error {
 	packageName := helper.GetProjectName(p.ProjectName)
-
 	err := p.replaceFiles(packageName)
 	if err != nil {
 		return err

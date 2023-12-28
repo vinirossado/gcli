@@ -31,6 +31,7 @@ var includeExt string
 func init() {
 	CmdRun.Flags().StringVarP(&excludeDir, "excludeDir", "", excludeDir, `eg: gcli run --excludeDir="tmp,vendor,.git,.idea"`)
 	CmdRun.Flags().StringVarP(&includeExt, "includeExt", "", includeExt, `eg: gcli run --includeExt="go,mustache,html,yaml,yml,ini,json,mustache"`)
+
 	if excludeDir == "" {
 		excludeDir = config.RunExcludeDir
 	}
@@ -110,7 +111,6 @@ func watch(dir string, programArgs []string) {
 	excludeDirArr := strings.Split(excludeDir, ",")
 	includeExtArr := strings.Split(includeExt, ",")
 
-	fmt.Printf("aaaa", excludeDirArr)
 	includeExtMap := make(map[string]struct{})
 
 	for _, s := range includeExtArr {

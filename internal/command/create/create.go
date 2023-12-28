@@ -55,40 +55,40 @@ var CmdCreateHandler = &cobra.Command{
 	Use:     "handler",
 	Short:   "Create a new ",
 	Example: "gcli create handler user",
-	//Args:    cobra.ExactArgs(1),
-	Run: runCreate,
+	Args:    cobra.MinimumNArgs(1),
+	Run:     runCreate,
 }
 
 var CmdCreateService = &cobra.Command{
 	Use:     "service",
 	Short:   "Create a new ",
 	Example: "gcli create service user",
-	//Args:    cobra.ExactArgs(1),
-	Run: runCreate,
+	Args:    cobra.MinimumNArgs(1),
+	Run:     runCreate,
 }
 
 var CmdCreateRepository = &cobra.Command{
 	Use:     "repository",
 	Short:   "Create a new ",
 	Example: "gcli create repository user",
-	//Args:    cobra.ExactArgs(1),
-	Run: runCreate,
+	Args:    cobra.MinimumNArgs(1),
+	Run:     runCreate,
 }
 
 var CmdCreateModel = &cobra.Command{
 	Use:     "model",
 	Short:   "Create a new ",
 	Example: "gcli create model user",
-	//Args:    cobra.ExactArgs(1),
-	Run: runCreate,
+	Args:    cobra.MinimumNArgs(1),
+	Run:     runCreate,
 }
 
 var CmdCreateAll = &cobra.Command{
 	Use:     "all",
 	Short:   "Create a new ",
 	Example: "gcli create all user",
-	//Args:    cobra.ExactArgs(1),
-	Run: runCreate,
+	Args:    cobra.MinimumNArgs(1),
+	Run:     runCreate,
 }
 var properties string
 
