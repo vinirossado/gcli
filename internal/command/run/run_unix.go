@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -89,7 +90,7 @@ var CmdRun = &cobra.Command{
 				dir = cmdPath[dir]
 			}
 		}
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(quit, syscall.SIGKILL, syscall.SIGTERM)
 		fmt.Printf("\033[35mgcli run %s.\033[0m\n", dir)
 		fmt.Printf("\033[35mWatch excludeDir %s\033[0m\n", excludeDir)
 		fmt.Printf("\033[35mWatch includeExt %s\033[0m\n", includeExt)
