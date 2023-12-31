@@ -225,7 +225,7 @@ func updateFile(dirPath string, filename string) {
 			tempBuffer += line + "\n" // Add the selected line
 		} else {
 			tempBuffer += line + "\n"            // Add other lines as they are
-			tempBuffer += "Addicionou esse k7\n" // Add the new specific line
+			tempBuffer += "Adicionou esse k7\n" // Add the new specific line
 		}
 	}
 
