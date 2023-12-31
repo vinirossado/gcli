@@ -1,0 +1,40 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Directory for test results
+/test_results/
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Compiled Go packages
+*.pkg
+
+# Dependency directories (remove the comment below if you'll manually manage your dependencies)
+# /vendor/
+
+# Application binaries
+/app
+
+# Application logs
+/log/
+
+# The following are some files that might be created when running a Go application
+# Uncomment if you want to ignore them
+# /app.log
+# /debug
+# /trace
+
+# End of file
