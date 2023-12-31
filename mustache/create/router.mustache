@@ -3,18 +3,18 @@ package routes
 import (
 "{{ .ProjectName }}/pkg/logger"
 "{{ .ProjectName }}/source/handler"
-"{{ .ProjectName }}/source/handler"
 "{{ .ProjectName }}/source/middleware"
 "github.com/gin-gonic/gin"
 )
 
 func Bind{{.FileName}}Routes(router *gin.Engine, jwt *middleware.JWT, {{.FileNameTitleLower}}Handler handler.{{.FileName}}Handler, log *logger.Logger) {
-    r := router.Group("/{{.FileNameTitleLower}}")
-
-    r.GET("/", func(ctx *gin.Context) {
-        resp.HandleSuccess(ctx, map[string]any{
-            "say": "Health check {{.FileNameTitleLower}}",
-        })
-    })
-
+    {{.FileNameTitleLower}} := router.Group("/{{.FileNameTitleLower}}")
+    
+    {{.FileNameTitleLower}}.Use(middleware.StrictAuth(jwt, log))
+    
+    {{.FileNameTitleLower}}.GET("/:id", {{.FileNameTitleLower}}Handler.Get{{.FileName}}ById)
+    {{.FileNameTitleLower}}.GET("/", {{.FileNameTitleLower}}Handler.GetAll{{.FileName}})
+    {{.FileNameTitleLower}}.POST("/", {{.FileNameTitleLower}}Handler.Create{{.FileName}})
+    {{.FileNameTitleLower}}.PUT("/", {{.FileNameTitleLower}}Handler.Update{{.FileName}})
+    {{.FileNameTitleLower}}.DELETE("/:id", {{.FileNameTitleLower}}Handler.Delete{{.FileName}})
 }

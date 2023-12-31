@@ -24,8 +24,13 @@ func New{{ .FileName }}Repository(repository *Repository) {{ .FileName }}Reposit
 }
 
 func (r *{{ .FileNameTitleLower }}Repository) GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error) {
-    //TODO implement me
-    panic("implement me")
+    var {{ .FileNameTitleLower }} []model.{{ .FileName }}
+
+    if err := r.db.Find(&{{ .FileNameTitleLower }}).Error; err != nil {
+        return nil, errors.Wrap(err, "failed to get all users")
+    }
+
+    return &{{ .FileNameTitleLower }}, nil
 }
 
 
@@ -40,8 +45,11 @@ func (r *{{ .FileNameTitleLower }}Repository) Get{{ .FileName }}ById(id uint) (*
 }
 
 func (r *{{ .FileNameTitleLower }}Repository) Create{{ .FileName }}({{.FileNameTitleLower}} *model.{{ .FileName }}) (uint, error) {
-    //TODO implement me
-    panic("implement me")
+    if err := r.db.Create({{.FileNameTitleLower}}).Error; err != nil {
+        return 0, errors.Wrap(err, "failed to create user")
+    }
+    
+    return {{.FileNameTitleLower}}.ID, nil
 }
 
 func (r *{{ .FileNameTitleLower }}Repository) Update{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error) {
@@ -53,28 +61,9 @@ func (r *{{ .FileNameTitleLower }}Repository) Update{{ .FileName }}({{.FileNameT
 }
 
 func (r *{{ .FileNameTitleLower }}Repository) Delete{{ .FileName }}(id uint) (uint, error) {
-    //TODO implement me
-    panic("implement me")
+    if err := r.db.Delete(&model.{{ .FileName }}{}, id).Error; err != nil {
+        return id, errors.Wrap(err, "failed to delete user")
+    }
+
+    return id, nil
 }
-
-
-
-{{/*func (r *{{ .FileNameTitleLower }}Repository) GetByID(userId string) (*model.User, error) {*/}}
-{{/*    var user model.User*/}}
-{{/*    if err := r.db.Where("user_id = ?", userId).First(&user).Error; err != nil {*/}}
-{{/*        return nil, errors.Wrap(err, "failed to get user by ID")*/}}
-{{/*    }*/}}
-
-{{/*    return &user, nil*/}}
-{{/*}*/}}
-
-{{/*func (r *{{ .FileNameTitleLower }}Repository) GetByUsername(username string) (*model.User, error) {*/}}
-{{/*    var user model.User*/}}
-{{/*    if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {*/}}
-{{/*      if err == gorm.ErrRecordNotFound {*/}}
-{{/*        return nil, nil*/}}
-{{/*      }*/}}
-{{/*        return nil, errors.Wrap(err, "failed to get user by username")*/}}
-{{/*    }*/}}
-{{/*    return &user, nil*/}}
-{{/*}*/}}

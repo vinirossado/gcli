@@ -8,7 +8,7 @@ import (
 type {{ .FileName }} struct {
         ID        uint   `gorm:"primarykey"`
     {{ range $propName, $propType := .Properties }} 
-        {{ $propName }} {{ $propType }} {{ end }}
+        {{ $propName }} {{ $propType }} `gorm:"null"` {{ end }}
         CreatedAt time.Time
         UpdatedAt time.Time
         DeletedAt gorm.DeletedAt `gorm:"index"`
