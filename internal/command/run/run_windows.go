@@ -92,7 +92,7 @@ var CmdRun = &cobra.Command{
 			}
 		}
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		fmt.Printf("\033[35mNunu run %s.\033[0m\n", dir)
+		fmt.Printf("\033[35mGcli run %s.\033[0m\n", dir)
 		fmt.Printf("\033[35mWatch excludeDir %s\033[0m\n", excludeDir)
 		fmt.Printf("\033[35mWatch includeExt %s\033[0m\n", includeExt)
 		watch(dir, programArgs)
