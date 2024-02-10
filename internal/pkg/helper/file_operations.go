@@ -49,8 +49,16 @@ func addLineAfterLastPattern(filename, pattern, newLine string) error {
 	lines = insertNewLine(lines, lastOccurrenceIndex+1, lastIndentation, newLine)
 
 	// Write the modified content back to the file
-	file.Truncate(0) // Clear the file
-	file.Seek(0, 0)  // Rewind to the beginning
+	err = file.Truncate(0)
+	if err != nil {
+		return err
+	} // Clear the file
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
+	} // Rewind to the beginning
+
 	writer := bufio.NewWriter(file)
 	for _, line := range lines {
 		_, err := writer.WriteString(line + "\n")
@@ -58,7 +66,10 @@ func addLineAfterLastPattern(filename, pattern, newLine string) error {
 			return err
 		}
 	}
-	writer.Flush()
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -149,5 +160,6 @@ func addInfoAfterLastOccurrence(filename, variableName, newInfo string) error {
 }
 
 func UpdateFile(filename, pattern, newLine string) {
-	addLineAfterLastPattern(filename, pattern, newLine)
+	_ = addLineAfterLastPattern(filename, pattern, newLine)
+
 }
