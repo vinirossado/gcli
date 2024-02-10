@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bufio"
+	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -23,7 +24,13 @@ func addLineAfterLastPattern(filename, pattern, newLine string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Printf("TEM ERRO no DEFER")
+		}
+		log.Printf("Fechou DEFER do file-op do tipo model")
+	}(file)
 
 	// Create a scanner to read the file
 	scanner := bufio.NewScanner(file)
@@ -103,13 +110,25 @@ func insertNewLine(lines []string, index int, indentation, newLine string) []str
 	return lines
 }
 
-func addInfoAfterLastOccurrence(filename, variableName, newInfo string) error {
+func AddLineAfterLastPatternWireFile(filename, variableName, newInfo string) error {
 	// Open the file
-	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
+	file, err := os.OpenFile(filename, os.O_RDWR, getDefaultOSPermissionFile())
+	log.Printf("Entrou no metodo pra inserir")
+	log.Printf(filename, variableName, newInfo)
+
 	if err != nil {
+		log.Printf("TEM ERRO")
 		return err
 	}
-	defer file.Close()
+
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			log.Printf("TEM ERRO no DEFER")
+
+		}
+		log.Printf("Fechou DEFER do file-op do tipo wire")
+	}(file)
 
 	// Create a scanner to read the file
 	scanner := bufio.NewScanner(file)
@@ -155,11 +174,11 @@ func addInfoAfterLastOccurrence(filename, variableName, newInfo string) error {
 		}
 	}
 	writer.Flush()
+	log.Printf("NAO TEM ERRO")
 
 	return nil
 }
 
 func UpdateFile(filename, pattern, newLine string) {
 	_ = addLineAfterLastPattern(filename, pattern, newLine)
-
 }

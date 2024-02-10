@@ -102,23 +102,31 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.Properties = parseProperties(properties)
 
 	switch c.CreateType {
+
 	case "handler", "service", "repository", "model", "router":
 		c.generateFile()
+		helper.UpdateFile(c.FilePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
+
 	case "all":
 		c.CreateType = "handler"
 		c.generateFile()
+		helper.AddLineAfterLastPatternWireFile("source/cmd/server/wire.go", "HandlerSet,", "handler.NewHome2Handler,")
 
 		c.CreateType = "service"
 		c.generateFile()
+		helper.AddLineAfterLastPatternWireFile("source/cmd/server/wire.go", "ServiceSet,", fmt.Sprintf("service.New%sService,", c.FileName))
 
 		c.CreateType = "repository"
 		c.generateFile()
+		helper.AddLineAfterLastPatternWireFile("source/cmd/server/wire.go", "RepositorySet,", fmt.Sprintf("repository.New%sRepository,", c.FileName))
 
 		c.CreateType = "model"
 		c.generateFile()
+		helper.UpdateFile(c.FilePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
 
 		c.CreateType = "router"
 		c.generateFile()
+		//helper.UpdateFile(filePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
 	default:
 		log.Fatalf("Invalid handler type %s", c.CreateType)
 	}
@@ -155,6 +163,7 @@ func (c *Create) generateFile() {
 
 	defer func(f *os.File) {
 		_ = f.Close()
+		log.Printf("Fechou DEFER do Generate")
 	}(f)
 
 	t, err := template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
@@ -172,7 +181,6 @@ func (c *Create) generateFile() {
 
 	log.Printf("Created new %s: %s (%vkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kilobytes)
 
-	helper.UpdateFile(filePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
 }
 
 // TODO: Rename Method
