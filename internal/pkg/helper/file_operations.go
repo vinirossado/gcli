@@ -164,8 +164,16 @@ func AddLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 	}
 
 	// Write the modified content back to the file
-	file.Truncate(0) // Clear the file
-	file.Seek(0, 0)  // Rewind to the beginning
+	err = file.Truncate(0)
+	if err != nil {
+		return err
+	} // Clear the file
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return err
+	} // Rewind to the beginning
+
 	writer := bufio.NewWriter(file)
 	for _, line := range lines {
 		_, err := writer.WriteString(line + "\n")
@@ -173,7 +181,10 @@ func AddLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 			return err
 		}
 	}
-	writer.Flush()
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
 	log.Printf("NAO TEM ERRO")
 
 	return nil
