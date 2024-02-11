@@ -2,6 +2,7 @@ package helper
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -110,7 +111,7 @@ func insertNewLine(lines []string, index int, indentation, newLine string) []str
 	return lines
 }
 
-func AddLineAfterLastPatternWireFile(filename, variableName, newInfo string) error {
+func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) error {
 	// Open the file
 	file, err := os.OpenFile(filename, os.O_RDWR, getDefaultOSPermissionFile())
 	log.Printf("Entrou no metodo pra inserir")
@@ -190,6 +191,9 @@ func AddLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 	return nil
 }
 
-func UpdateFile(filename, pattern, newLine string) {
-	_ = addLineAfterLastPattern(filename, pattern, newLine)
+func UpdateFile(filetype, filePath, pattern, newLine string) {
+	if filetype == "model" {
+		_ = addLineAfterLastPattern(filePath, pattern, newLine)
+	}
+	_ = addLineAfterLastPatternWireFile("source/cmd/server/wire.go", "ServiceSet,", fmt.Sprintf("service.New%sService,", filePath))
 }
