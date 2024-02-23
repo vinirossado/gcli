@@ -193,7 +193,7 @@ func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 
 func UpdateFile(filetype, filePath, pattern, newLine string) {
 	if filetype == "model" {
-		_ = addLineAfterLastPattern(filePath, pattern, newLine)
+		//_ = addLineAfterLastPattern("/home/rossado/Documents/Dev/gcli/internal/source/cmd/s", pattern, newLine)
 	}
-	_ = addLineAfterLastPatternWireFile("source/cmd/server/wire.go", "ServiceSet,", fmt.Sprintf("service.New%sService,", filePath))
+	_ = addLineAfterLastPatternWireFile("/home/rossado/Documents/Dev/gcli/internal/source/cmd/server/wire.go", "Set = wire.NewSet,", fmt.Sprintf("service.New%sService,", filePath))
 }

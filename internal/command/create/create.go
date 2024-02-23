@@ -7,6 +7,7 @@ import (
 	"github.com/vinirossado/gcli/mustache"
 	"log"
 	"math"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -91,12 +92,22 @@ var CmdCreateAll = &cobra.Command{
 }
 var properties string
 
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
+}
 func runCreate(cmd *cobra.Command, args []string) {
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
 	c.CreateType = cmd.Use
 	c.FilePath, c.FileName = filepath.Split(args[0])
-	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
+	//c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
+	c.FileName = RandStringBytes(10) + ".go"
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
 	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
 	c.Properties = parseProperties(properties)
@@ -157,8 +168,9 @@ func (c *Create) generateFile() {
 	}
 
 	defer func(f *os.File) {
-		//helper.UpdateFile("model", filePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
-		_ = f.Close()
+		log.Printf(c.CreateType)
+		helper.UpdateFile(c.CreateType, filePath, "{},", fmt.Sprintf("&%s{},", c.FileName))
+		f.Close()
 		log.Printf("Fechou DEFER do Generate")
 	}(f)
 
