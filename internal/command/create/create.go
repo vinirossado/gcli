@@ -5,7 +5,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"github.com/vinirossado/gcli/mustache"
+
 	"log"
+
 	"math"
 	"math/rand"
 	"os"
@@ -104,10 +106,10 @@ func RandStringBytes(n int) string {
 func runCreate(cmd *cobra.Command, args []string) {
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
+
 	c.CreateType = cmd.Use
 	c.FilePath, c.FileName = filepath.Split(args[0])
-	//c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
-	c.FileName = RandStringBytes(10) + ".go"
+	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
 	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
 	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
 	c.Properties = parseProperties(properties)
@@ -157,21 +159,24 @@ func parseProperties(properties string) map[string]string {
 
 func (c *Create) generateFile() {
 	filePath := c.FilePath
+	if strings.Contains(helper.GetProjectRootName(), "gcli") {
+		filePath = fmt.Sprintf("Debug/source/%s/", c.CreateType)
+	}
+
 	if filePath == "" {
 		filePath = fmt.Sprintf("source/%s/", c.CreateType)
 	}
 
 	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
+	fmt.Println(strings.ToLower(c.FileName)+".go", "FileNameParaCriar")
 	if f == nil {
 		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists")
 		return
 	}
 
 	defer func(f *os.File) {
-		log.Printf(c.CreateType)
 		helper.UpdateFile(c.CreateType, filePath, "{},", fmt.Sprintf("&%s{},", c.FileName))
 		f.Close()
-		log.Printf("Fechou DEFER do Generate")
 	}(f)
 
 	t, err := template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))

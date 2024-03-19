@@ -28,9 +28,8 @@ func addLineAfterLastPattern(filename, pattern, newLine string) error {
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			log.Printf("TEM ERRO no DEFER")
+
 		}
-		log.Printf("Fechou DEFER do file-op do tipo model")
 	}(file)
 
 	// Create a scanner to read the file
@@ -114,21 +113,17 @@ func insertNewLine(lines []string, index int, indentation, newLine string) []str
 func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) error {
 	// Open the file
 	file, err := os.OpenFile(filename, os.O_RDWR, getDefaultOSPermissionFile())
-	log.Printf("Entrou no metodo pra inserir")
 	log.Printf(filename, variableName, newInfo)
 
 	if err != nil {
-		log.Printf("TEM ERRO")
 		return err
 	}
 
 	defer func(file *os.File) {
 		err = file.Close()
 		if err != nil {
-			log.Printf("TEM ERRO no DEFER")
 
 		}
-		log.Printf("Fechou DEFER do file-op do tipo wire")
 	}(file)
 
 	// Create a scanner to read the file
@@ -186,14 +181,13 @@ func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 	if err != nil {
 		return err
 	}
-	log.Printf("NAO TEM ERRO")
 
 	return nil
 }
 
 func UpdateFile(filetype, filePath, pattern, newLine string) {
 	if filetype == "model" {
-		//_ = addLineAfterLastPattern("/home/rossado/Documents/Dev/gcli/internal/source/cmd/s", pattern, newLine)
+		_ = addLineAfterLastPattern("/home/rossado/Documents/Dev/gcli/Debug/source/cmd/s", pattern, newLine)
 	}
-	_ = addLineAfterLastPatternWireFile("/home/rossado/Documents/Dev/gcli/internal/source/cmd/server/wire.go", "Set = wire.NewSet,", fmt.Sprintf("service.New%sService,", filePath))
+	_ = addLineAfterLastPatternWireFile("/home/rossado/Documents/Dev/gcli/Debug/source/cmd/server/wire.go", "Set = wire.NewSet,", fmt.Sprintf("service.New%sService,", filePath))
 }
