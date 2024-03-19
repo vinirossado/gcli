@@ -168,7 +168,6 @@ func (c *Create) generateFile() {
 	}
 
 	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
-	fmt.Println(strings.ToLower(c.FileName)+".go", "FileNameParaCriar")
 	if f == nil {
 		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists")
 		return
