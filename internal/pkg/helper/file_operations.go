@@ -3,7 +3,6 @@ package helper
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -113,7 +112,6 @@ func insertNewLine(lines []string, index int, indentation, newLine string) []str
 func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) error {
 	// Open the file
 	file, err := os.OpenFile(filename, os.O_RDWR, getDefaultOSPermissionFile())
-	log.Printf(filename, variableName, newInfo)
 
 	if err != nil {
 		return err
