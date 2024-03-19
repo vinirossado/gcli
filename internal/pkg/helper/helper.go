@@ -87,3 +87,13 @@ func FindMain(base, excludeDir string) (map[string]string, error) {
 
 	return cmdPath, nil
 }
+
+func GetProjectRootName() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return ""
+	}
+	return dir
+
+}

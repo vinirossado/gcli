@@ -5,8 +5,11 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"github.com/vinirossado/gcli/mustache"
+
 	"log"
+
 	"math"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -91,9 +94,19 @@ var CmdCreateAll = &cobra.Command{
 }
 var properties string
 
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
+}
 func runCreate(cmd *cobra.Command, args []string) {
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
+
 	c.CreateType = cmd.Use
 	c.FilePath, c.FileName = filepath.Split(args[0])
 	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
@@ -105,28 +118,23 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	case "handler", "service", "repository", "model", "router":
 		c.generateFile()
-		helper.UpdateFile(c.FilePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
 
 	case "all":
 		c.CreateType = "handler"
 		c.generateFile()
-		helper.AddLineAfterLastPatternWireFile("source/cmd/server/wire.go", "HandlerSet,", "handler.NewHome2Handler,")
 
 		c.CreateType = "service"
 		c.generateFile()
-		helper.AddLineAfterLastPatternWireFile("source/cmd/server/wire.go", "ServiceSet,", fmt.Sprintf("service.New%sService,", c.FileName))
 
 		c.CreateType = "repository"
 		c.generateFile()
-		helper.AddLineAfterLastPatternWireFile("source/cmd/server/wire.go", "RepositorySet,", fmt.Sprintf("repository.New%sRepository,", c.FileName))
 
 		c.CreateType = "model"
 		c.generateFile()
-		helper.UpdateFile(c.FilePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
 
 		c.CreateType = "router"
 		c.generateFile()
-		//helper.UpdateFile(filePath+"model"+".go", "{},", fmt.Sprintf("&%s{},", c.FileName))
+
 	default:
 		log.Fatalf("Invalid handler type %s", c.CreateType)
 	}
@@ -151,19 +159,24 @@ func parseProperties(properties string) map[string]string {
 
 func (c *Create) generateFile() {
 	filePath := c.FilePath
+	if strings.Contains(helper.GetProjectRootName(), "gcli") {
+		filePath = fmt.Sprintf("Debug/source/%s/", c.CreateType)
+	}
+
 	if filePath == "" {
 		filePath = fmt.Sprintf("source/%s/", c.CreateType)
 	}
 
 	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
+	fmt.Println(strings.ToLower(c.FileName)+".go", "FileNameParaCriar")
 	if f == nil {
 		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists")
 		return
 	}
 
 	defer func(f *os.File) {
-		_ = f.Close()
-		log.Printf("Fechou DEFER do Generate")
+		helper.UpdateFile(c.CreateType, filePath, "{},", fmt.Sprintf("&%s{},", c.FileName))
+		f.Close()
 	}(f)
 
 	t, err := template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
@@ -180,7 +193,6 @@ func (c *Create) generateFile() {
 	kilobytes := math.Round(float64(fileSize.Size()) / 1024)
 
 	log.Printf("Created new %s: %s (%vkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kilobytes)
-
 }
 
 // TODO: Rename Method

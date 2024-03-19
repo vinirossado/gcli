@@ -31,6 +31,12 @@
 # Application logs
 /log/
 
+# Application test
+internal/source
+internal/source/*
+/Debug
+/Debug/*
+
 # The following are some files that might be created when running a Go application
 # Uncomment if you want to ignore them
 # /app.log

@@ -17,8 +17,8 @@ type Update{{.FileName}}Request struct {
 }
 
 type {{ .FileName }}Service interface {
-    Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error)
     GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error)
+    Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error)
     Create{{ .FileName }}({{.FileNameTitleLower}} *Create{{.FileName}}Request) (uint, error)
     Update{{ .FileName }}({{.FileNameTitleLower}} *Update{{.FileName}}Request) (uint, error)
     Delete{{ .FileName }}(id uint) (uint, error)
@@ -36,12 +36,17 @@ func New{{ .FileName }}Service(service *Service, {{ .FileNameTitleLower }}Reposi
     }
 }
 
-func (s *{{ .FileNameTitleLower }}Service) Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error) {
-    return s.{{ .FileNameTitleLower }}Repository.Get{{ .FileName }}ById(id)
-}
-
 func (s *{{ .FileNameTitleLower }}Service) GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error) {
     return s.{{ .FileNameTitleLower }}Repository.GetAll{{ .FileName }}()
+}
+
+func (s *{{ .FileNameTitleLower }}Service) Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error) {
+    {{.FileNameTitleLower}}, err := s.{{ .FileNameTitleLower }}Repository.Get{{ .FileName }}ById(id)
+    if err != nil {
+        return nil, err
+    }
+
+    return {{.FileNameTitleLower}}, nil
 }
 
 func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitleLower}} *Create{{.FileName}}Request) (uint, error) {
@@ -52,6 +57,11 @@ func (s *{{ .FileNameTitleLower }}Service) Create{{ .FileName }}({{.FileNameTitl
 }
 
 func (s *{{ .FileNameTitleLower }}Service) Update{{ .FileName }}({{.FileNameTitleLower}} *Update{{.FileName}}Request) (uint, error) {
+    _, err := Get{{ .FileName }}ById(id)
+    if err == nil {
+        return 0, errors.New("{{.FileNameTitleLower}} not found")
+    }
+
     var {{.FileNameTitleLower}}Entity model.{{.FileName}}
     mapper.Map({{.FileNameTitleLower}}, &{{.FileNameTitleLower}}Entity)
 
@@ -59,10 +69,11 @@ func (s *{{ .FileNameTitleLower }}Service) Update{{ .FileName }}({{.FileNameTitl
 }
 
 func (s *{{ .FileNameTitleLower }}Service) Delete{{ .FileName }}(id uint) (uint, error) {
-    _, err := s.{{ .FileNameTitleLower }}Repository.Get{{ .FileName }}ById(id)
+    _, err := Get{{ .FileName }}ById(id)
     if err == nil {
         return 0, errors.New("{{.FileNameTitleLower}} not found")
     }
+
     return s.{{ .FileNameTitleLower }}Repository.Delete{{ .FileName }}(id)
 }
 

@@ -6,8 +6,8 @@ import (
 )
 
 type {{ .FileName }}Repository interface {
-    Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error)
     GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error)
+    Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error)
     Create{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error)
     Update{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error)
     Delete{{ .FileName }}(id uint) (uint, error)
