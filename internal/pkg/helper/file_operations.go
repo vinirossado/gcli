@@ -143,7 +143,7 @@ func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 		}
 		// If we found the variable, look for the last occurrence within it and insert the new info after it
 		if foundVariable {
-			// If the line contains the pattern and it's the last line inside the variable block, insert the new info
+			// If the line contains the pattern, and it's the last line inside the variable block, insert the new info
 			if strings.Contains(line, ",") && !foundLastOccurrence {
 				lines = append(lines, line)
 				// Append the new info after the last occurrence within the variable
@@ -187,7 +187,7 @@ func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 
 func UpdateFile(filetype, filePath, pattern, newLine string) {
 	if filetype == "model" {
-		_ = addLineAfterLastPattern("/home/rossado/Documents/Dev/gcli/Debug/source/cmd/s", pattern, newLine)
+		_ = addLineAfterLastPattern(fmt.Sprintf(GetProjectRootName()+"Debug/source/model/model.go"), pattern, newLine)
 	}
-	_ = addLineAfterLastPatternWireFile("/home/rossado/Documents/Dev/gcli/Debug/source/cmd/server/wire.go", "Set = wire.NewSet,", fmt.Sprintf("service.New%sService,", filePath))
+	_ = addLineAfterLastPatternWireFile(fmt.Sprintf(GetProjectRootName()+"Debug/source/cmd/server/wire.go"), "Set = wire.NewSet,", fmt.Sprintf("service.New%sService,", filePath))
 }
