@@ -3,14 +3,16 @@ package new
 import (
 	"bytes"
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/spf13/cobra"
-	"github.com/vinirossado/gcli/config"
-	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/spf13/cobra"
+
+	"github.com/vinirossado/gcli/config"
+	"github.com/vinirossado/gcli/internal/pkg/helper"
 )
 
 type Project struct {
@@ -144,13 +146,20 @@ func (p *Project) cloneTemplate() (bool, error) {
 		prompt := &survey.Select{
 			Message: "Please select a layout",
 			Options: []string{
-				"Lite",
-				"Basic",
 				"Advanced",
+				"Lite - WIP",
+				"Basic - WIP",
+				"Chat - WIP",
 			},
 			Description: func(value string, index int) string {
-				if index == 0 {
-					return "A basic new structure"
+				if index == 1 {
+					return "A lite project structure"
+				}
+				if index == 2 {
+					return "A basic project structure"
+				}
+				if index == 3 {
+					return "A simple chat room containing websocker/tcp"
 				}
 				return "It has rich functions such as: Wire, Gin, SuaMae, MinhaMae, VossaMae e etc..."
 			},
@@ -159,12 +168,16 @@ func (p *Project) cloneTemplate() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if layout == "Lite" {
-			repo = config.RepoLiteStructure
-		}
 		if layout == "Advanced" {
 			repo = config.RepoFullStructure
+		} else if layout == "Chat" {
+			repo = config.RepoChat
+		} else if layout == "Lite" {
+			repo = config.RepoLiteStructure
+		} else {
+			repo = config.RepoBasicStructure
 		}
+
 		err = os.RemoveAll(p.ProjectName)
 		if err != nil {
 			fmt.Println("remove old new error: ", err)
@@ -199,7 +212,7 @@ func (p *Project) replaceFiles(packageName string) error {
 			return err
 		}
 		newData := bytes.ReplaceAll(data, []byte(packageName), []byte(p.ProjectName))
-		if err := os.WriteFile(path, newData, 0644); err != nil {
+		if err := os.WriteFile(path, newData, helper.GetDefaultOSPermissionFile()); err != nil {
 			return err
 		}
 		return nil
@@ -214,10 +227,12 @@ func (p *Project) replaceFiles(packageName string) error {
 
 func (p *Project) replacePackageName() error {
 	packageName := helper.GetProjectName(p.ProjectName)
+
 	err := p.replaceFiles(packageName)
 	if err != nil {
 		return err
 	}
+
 	cmd := exec.Command("go", "mod", "edit", "-module", p.ProjectName)
 	cmd.Dir = p.ProjectName
 	_, err = cmd.CombinedOutput()

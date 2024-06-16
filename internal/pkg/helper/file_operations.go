@@ -17,7 +17,7 @@ func getWindowsDefaultFilePermissions() os.FileMode {
 }
 
 func addLineAfterLastPattern(filename, pattern, newLine string) error {
-	unixDefaultFilePermissions := getDefaultOSPermissionFile()
+	unixDefaultFilePermissions := GetDefaultOSPermissionFile()
 
 	// Open the file
 	file, err := os.OpenFile(filename, os.O_RDWR, unixDefaultFilePermissions)
@@ -80,7 +80,7 @@ func addLineAfterLastPattern(filename, pattern, newLine string) error {
 	return nil
 }
 
-func getDefaultOSPermissionFile() os.FileMode {
+func GetDefaultOSPermissionFile() os.FileMode {
 	if runtime.GOOS == "windows" {
 		return getWindowsDefaultFilePermissions()
 	}
@@ -111,7 +111,7 @@ func insertNewLine(lines []string, index int, indentation, newLine string) []str
 
 func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) error {
 	// Open the file
-	file, err := os.OpenFile(filename, os.O_RDWR, getDefaultOSPermissionFile())
+	file, err := os.OpenFile(filename, os.O_RDWR, GetDefaultOSPermissionFile())
 
 	if err != nil {
 		return err

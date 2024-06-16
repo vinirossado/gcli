@@ -2,7 +2,9 @@ package gcli
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
+
 	"github.com/vinirossado/gcli/internal/command/create"
 	"github.com/vinirossado/gcli/internal/command/new"
 	"github.com/vinirossado/gcli/internal/command/run"
@@ -35,6 +37,7 @@ func init() {
 	rootCmd.AddCommand(create.CreateCmd)
 	rootCmd.AddCommand(run.CmdRun)
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
+
 	create.CreateCmd.AddCommand(create.CmdCreateHandler)
 	create.CreateCmd.AddCommand(create.CmdCreateService)
 	create.CreateCmd.AddCommand(create.CmdCreateRepository)

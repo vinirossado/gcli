@@ -2,29 +2,32 @@ package create
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/vinirossado/gcli/internal/pkg/helper"
-	"github.com/vinirossado/gcli/mustache"
-
 	"log"
-
 	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/duke-git/lancet/v2/strutil"
+	"github.com/spf13/cobra"
+
+	"github.com/vinirossado/gcli/internal/pkg/helper"
+	"github.com/vinirossado/gcli/mustache"
 )
 
 type Create struct {
-	ProjectName        string
-	CreateType         string
-	FilePath           string
-	FileName           string
-	FileNameTitleLower string
-	FileNameFirstChar  string
-	IsFull             bool
-	Properties         map[string]string
+	ProjectName          string
+	CreateType           string
+	FilePath             string
+	FileName             string
+	StructName           string
+	StructNameLowerFirst string
+	StructNameFirstChar  string
+	StructNameSnakeCase  string
+	IsFull               bool
+	Properties           map[string]string
 }
 
 func NewCreate() *Create {
@@ -55,7 +58,7 @@ func init() {
 
 var CmdCreateHandler = &cobra.Command{
 	Use:     "handler",
-	Short:   "Create a new ",
+	Short:   "Create a new handler ",
 	Example: "gcli create handler user",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
@@ -63,7 +66,7 @@ var CmdCreateHandler = &cobra.Command{
 
 var CmdCreateService = &cobra.Command{
 	Use:     "service",
-	Short:   "Create a new ",
+	Short:   "Create a new service",
 	Example: "gcli create service user",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
@@ -71,7 +74,7 @@ var CmdCreateService = &cobra.Command{
 
 var CmdCreateRepository = &cobra.Command{
 	Use:     "repository",
-	Short:   "Create a new ",
+	Short:   "Create a new repository ",
 	Example: "gcli create repository user",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
@@ -79,7 +82,7 @@ var CmdCreateRepository = &cobra.Command{
 
 var CmdCreateModel = &cobra.Command{
 	Use:     "model",
-	Short:   "Create a new ",
+	Short:   "Create a new model ",
 	Example: "gcli create model user",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
@@ -87,7 +90,7 @@ var CmdCreateModel = &cobra.Command{
 
 var CmdCreateAll = &cobra.Command{
 	Use:     "all",
-	Short:   "Create a new ",
+	Short:   "Create a new handler & service & repository & model ",
 	Example: "gcli create all user",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
@@ -106,12 +109,13 @@ func RandStringBytes(n int) string {
 func runCreate(cmd *cobra.Command, args []string) {
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
-
 	c.CreateType = cmd.Use
-	c.FilePath, c.FileName = filepath.Split(args[0])
+	c.FilePath, c.StructName = filepath.Split(args[0])
 	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
-	c.FileNameTitleLower = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
-	c.FileNameFirstChar = string(c.FileNameTitleLower[0])
+	c.StructName = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
+	c.StructNameLowerFirst = string(c.StructNameLowerFirst[0])
+	c.StructNameFirstChar = string(c.StructNameLowerFirst[0])
+	c.StructNameSnakeCase = strutil.SnakeCase(c.StructName)
 	c.Properties = parseProperties(properties)
 
 	switch c.CreateType {
@@ -196,7 +200,7 @@ func (c *Create) generateFile() {
 
 // TODO: Rename Method
 func createFile(dirPath string, filename string) *os.File {
-	filePath := dirPath + filename
+	filePath := filepath.Join(dirPath + filename)
 
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
