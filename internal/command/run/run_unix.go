@@ -5,11 +5,6 @@ package run
 
 import (
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/cobra"
-	"github.com/vinirossado/gcli/config"
-	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"
@@ -19,6 +14,13 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/cobra"
+
+	"github.com/vinirossado/gcli/config"
+	"github.com/vinirossado/gcli/internal/pkg/helper"
 )
 
 var quit = make(chan os.Signal, 1)

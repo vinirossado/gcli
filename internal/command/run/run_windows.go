@@ -5,8 +5,6 @@ package run
 
 import (
 	"fmt"
-	"github.com/vinirossado/gcli/config"
-	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"log"
 	"os"
 	"os/exec"
@@ -21,6 +19,9 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/cobra"
+
+	"github.com/vinirossado/gcli/config"
+	"github.com/vinirossado/gcli/internal/pkg/helper"
 )
 
 var quit = make(chan os.Signal, 1)
@@ -192,6 +193,7 @@ func killProcess(cmd *exec.Cmd) error {
 	}
 	return nil
 }
+
 func start(dir string, programArgs []string) *exec.Cmd {
 	cmd := exec.Command("go", append([]string{"run", dir}, programArgs...)...)
 	// Set a new process group to kill all child processes when the program exits

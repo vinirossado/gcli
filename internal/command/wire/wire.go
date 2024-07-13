@@ -2,14 +2,16 @@ package wire
 
 import (
 	"fmt"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/spf13/cobra"
-	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/spf13/cobra"
+
+	"github.com/vinirossado/gcli/internal/pkg/helper"
 )
 
 var CmdWire = &cobra.Command{
