@@ -9,10 +9,10 @@ import (
     "{{ .ProjectName}}/pkg/helper/mapper"
 )
 
-type Create{{.StructName}}Request struct {
+type Create{{ .StructName }}Request struct {
 	Id       uint   `json:"id" binding:"required"`
 }
-type Update{{.StructName}}Request struct {
+type Update{{ .StructName }}Request struct {
 	Id       uint   `json:"id" binding:"required"`
 }
 
