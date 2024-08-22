@@ -28,7 +28,7 @@ type Create struct {
 	StructNameFirstChar  string
 	StructNameSnakeCase  string
 	IsFull               bool
-	Properties           map[string]stringStructNameLowerFirst
+	Properties           map[string]string
 }
 
 func NewCreate() *Create {

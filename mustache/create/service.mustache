@@ -9,6 +9,14 @@ import (
     "{{ .ProjectName}}/pkg/helper/mapper"
 )
 
+type Create{{.StructName}}Request struct {
+	Id       uint   `json:"id" binding:"required"`
+}
+type Update{{.StructName}}Request struct {
+	Id       uint   `json:"id" binding:"required"`
+}
+
+
 type {{ .StructName }}Service interface {
     GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
     Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
@@ -50,7 +58,7 @@ func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context
 }
 
 func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Update{{.StructName}}Request) (uint, error) {
-    _, err := Get{{ .StructName }}ById(ctx, {{StructNameLowerFirst}}.Id)
+    _, err := s.Get{{ .StructName }}ById(ctx, {{StructNameLowerFirst}}.Id)
     if err == nil {
         return 0, errors.New("{{.StructNameLowerFirst}} not found")
     }
@@ -62,12 +70,12 @@ func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context
 }
 
 func (s *{{ .StructNameLowerFirst }}Service) Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error) {
-    _, err := Get{{ .StructName }}ById(ctx, id)
+    _, err := s.Get{{ .StructName }}ById(ctx, id)
     if err == nil {
         return 0, errors.New("{{.StructNameLowerFirst}} not found")
     }
 
-    return s.{{ .StructNameLowerFirst }}Repository.Delete{{ .StructName }}(id)
+    return s.{{ .StructNameLowerFirst }}Repository.Delete{{ .StructName }}(ctx, id)
 }
 
 
