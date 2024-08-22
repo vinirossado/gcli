@@ -6,12 +6,13 @@ import (
     
     "{{ .ProjectName }}/source/model"
     "{{ .ProjectName }}/source/repository"
-    "{{ .ProjectName}}/pkg/helper/mapper"
+    "{{ .ProjectName }}/pkg/helper/mapper"
 )
 
 type Create{{ .StructName }}Request struct {
 	Id       uint   `json:"id" binding:"required"`
 }
+
 type Update{{ .StructName }}Request struct {
 	Id       uint   `json:"id" binding:"required"`
 }
@@ -58,7 +59,7 @@ func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context
 }
 
 func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Update{{.StructName}}Request) (uint, error) {
-    _, err := s.Get{{ .StructName }}ById(ctx, {{StructNameLowerFirst}}.Id)
+    _, err := s.Get{{ .StructName }}ById(ctx, {{.StructNameLowerFirst}}.Id)
     if err == nil {
         return 0, errors.New("{{.StructNameLowerFirst}} not found")
     }
