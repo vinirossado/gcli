@@ -108,19 +108,6 @@ func RandStringBytes(n int) string {
 	return string(b)
 }
 func runCreate(cmd *cobra.Command, args []string) {
-
-	/*
-		c := NewCreate()
-		c.ProjectName = helper.GetProjectName(".")
-		c.CreateType = cmd.Use
-		c.FilePath, c.StructName = filepath.Split(args[0])
-		c.FileName = strings.ReplaceAll(c.StructName, ".go", "")
-		c.StructName = strutil.UpperFirst(strutil.CamelCase(c.FileName))
-		c.StructNameLowerFirst = strutil.LowerFirst(c.StructName)
-		c.StructNameFirstChar = string(c.StructNameLowerFirst[0])
-		c.StructNameSnakeCase = strutil.SnakeCase(c.StructName)
-
-	*/
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
 	c.CreateType = cmd.Use
