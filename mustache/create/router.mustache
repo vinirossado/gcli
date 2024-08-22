@@ -7,14 +7,14 @@ import (
 "github.com/gin-gonic/gin"
 )
 
-func Bind{{.FileName}}Routes(router *gin.Engine, jwt *middleware.JWT, {{.StructNameLowerFirst}}Handler handler.{{.FileName}}Handler, log *logger.Logger) {
+func Bind{{.StructName}}Routes(router *gin.Engine, jwt *middleware.JWT, {{.StructNameLowerFirst}}Handler handler.{{.StructName}}Handler, log *logger.Logger) {
     {{.StructNameLowerFirst}} := router.Group("/{{.StructNameLowerFirst}}")
     
     {{.StructNameLowerFirst}}.Use(middleware.StrictAuth(jwt, log))
     
-    {{.StructNameLowerFirst}}.GET("/:id", {{.StructNameLowerFirst}}Handler.Get{{.FileName}}ById)
-    {{.StructNameLowerFirst}}.GET("/", {{.StructNameLowerFirst}}Handler.GetAll{{.FileName}})
-    {{.StructNameLowerFirst}}.POST("/", {{.StructNameLowerFirst}}Handler.Create{{.FileName}})
-    {{.StructNameLowerFirst}}.PUT("/", {{.StructNameLowerFirst}}Handler.Update{{.FileName}})
-    {{.StructNameLowerFirst}}.DELETE("/:id", {{.StructNameLowerFirst}}Handler.Delete{{.FileName}})
+    {{.StructNameLowerFirst}}.GET("/:id", {{.StructNameLowerFirst}}Handler.Get{{.StructName}}ById)
+    {{.StructNameLowerFirst}}.GET("/", {{.StructNameLowerFirst}}Handler.GetAll{{.StructName}})
+    {{.StructNameLowerFirst}}.POST("/", {{.StructNameLowerFirst}}Handler.Create{{.StructName}})
+    {{.StructNameLowerFirst}}.PUT("/", {{.StructNameLowerFirst}}Handler.Update{{.StructName}})
+    {{.StructNameLowerFirst}}.DELETE("/:id", {{.StructNameLowerFirst}}Handler.Delete{{.StructName}})
 }
