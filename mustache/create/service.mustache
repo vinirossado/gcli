@@ -20,7 +20,7 @@ type {{ .StructNameLowerFirst }}Service struct {
     {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository
 }
 
-func New{{ .StructName }}Service(service *Service, {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository) {{ .StructName }}Service {
+func New{{ .StructName }}Service(service *Service, {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository) *{{ .StructName }}Service {
     return &{{ .StructNameLowerFirst }}Service{
         Service:        service,
         {{ .StructNameLowerFirst }}Repository: {{ .StructNameLowerFirst }}Repository,

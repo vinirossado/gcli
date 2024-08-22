@@ -17,7 +17,7 @@ type {{ .StructNameLowerFirst }}Repository struct {
     *Repository
 }
 
-func New{{ .StructName }}Repository(repository *Repository) {{ .StructName }}Repository {
+func New{{ .StructName }}Repository(repository *Repository) *{{ .StructName }}Repository {
     return &{{ .StructNameLowerFirst }}Repository{
          Repository: repository,
     }
