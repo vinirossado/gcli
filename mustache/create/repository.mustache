@@ -5,63 +5,63 @@ import (
     "github.com/pkg/errors"
 )
 
-type {{ .FileName }}Repository interface {
-    GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error)
-    Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error)
-    Create{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error)
-    Update{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error)
-    Delete{{ .FileName }}(id uint) (uint, error)
+type {{ .StructName }}Repository interface {
+    GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
+    Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
+    Create{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{.StructName}}) (uint, error)
+    Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{.StructName}}) (uint, error)
+    Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error)
 }
 
-type {{ .FileNameTitleLower }}Repository struct {
+type {{ .StructNameLowerFirst }}Repository struct {
     *Repository
 }
 
-func New{{ .FileName }}Repository(repository *Repository) {{ .FileName }}Repository {
-    return &{{ .FileNameTitleLower }}Repository{
+func New{{ .StructName }}Repository(repository *Repository) {{ .StructName }}Repository {
+    return &{{ .StructNameLowerFirst }}Repository{
          Repository: repository,
     }
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) GetAll{{ .FileName }}() (*[]model.{{ .FileName }}, error) {
-    var {{ .FileNameTitleLower }} []model.{{ .FileName }}
+func (r *{{ .StructNameLowerFirst }}Repository) GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error) {
+    var {{ .StructNameLowerFirst }} []model.{{ .StructName }}
 
-    if err := r.db.Find(&{{ .FileNameTitleLower }}).Error; err != nil {
+    if err := r.db.Find(&{{ .StructNameLowerFirst }}).Error; err != nil {
         return nil, errors.Wrap(err, "failed to get all users")
     }
 
-    return &{{ .FileNameTitleLower }}, nil
+    return &{{ .StructNameLowerFirst }}, nil
 }
 
 
-func (r *{{ .FileNameTitleLower }}Repository) Get{{ .FileName }}ById(id uint) (*model.{{ .FileName }}, error) {
-    var {{ .FileNameTitleLower }} model.{{ .FileName }}
+func (r *{{ .StructNameLowerFirst }}Repository) Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error) {
+    var {{ .StructNameLowerFirst }} model.{{ .StructName }}
 
-    if err := r.db.Where("id = ?", id).First(&{{ .FileNameTitleLower }}).Error; err != nil {
+    if err := r.db.Where("id = ?", id).First(&{{ .StructNameLowerFirst }}).Error; err != nil {
         return nil, errors.Wrap(err, "failed to get user by ID")
     }
 
-    return &{{ .FileNameTitleLower }}, nil
+    return &{{ .StructNameLowerFirst }}, nil
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) Create{{ .FileName }}({{.FileNameTitleLower}} *model.{{ .FileName }}) (uint, error) {
-    if err := r.db.Create({{.FileNameTitleLower}}).Error; err != nil {
+func (r *{{ .StructNameLowerFirst }}Repository) Create{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{ .StructName }}) (uint, error) {
+    if err := r.db.Create({{.StructNameLowerFirst}}).Error; err != nil {
         return 0, errors.Wrap(err, "failed to create user")
     }
     
-    return {{.FileNameTitleLower}}.ID, nil
+    return {{.StructNameLowerFirst}}.ID, nil
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) Update{{ .FileName }}({{.FileNameTitleLower}} *model.{{.FileName}}) (uint, error) {
-    if err := r.db.Save({{.FileNameTitleLower}}).Error; err != nil {
-         return {{.FileNameTitleLower}}.ID, errors.Wrap(err, "failed to update user")
+func (r *{{ .StructNameLowerFirst }}Repository) Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{.StructName}}) (uint, error) {
+    if err := r.db.Save({{.StructNameLowerFirst}}).Error; err != nil {
+         return {{.StructNameLowerFirst}}.ID, errors.Wrap(err, "failed to update user")
     }
 
-    return {{.FileNameTitleLower}}.ID, nil
+    return {{.StructNameLowerFirst}}.ID, nil
 }
 
-func (r *{{ .FileNameTitleLower }}Repository) Delete{{ .FileName }}(id uint) (uint, error) {
-    if err := r.db.Delete(&model.{{ .FileName }}{}, id).Error; err != nil {
+func (r *{{ .StructNameLowerFirst }}Repository) Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error) {
+    if err := r.db.Delete(&model.{{ .StructName }}{}, id).Error; err != nil {
         return id, errors.Wrap(err, "failed to delete user")
     }
 

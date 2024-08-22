@@ -106,14 +106,7 @@ func (p *Project) modTidy() error {
 }
 
 func (p *Project) rmGit() {
-	if err := os.RemoveAll(p.ProjectName + "/.git"); err != nil {
-		if pathErr, ok := err.(*os.PathError); ok {
-			fmt.Println("Error occurred while removing path:", pathErr.Path)
-			fmt.Println("Error:", pathErr.Err)
-		} else {
-			fmt.Println("Error:", err)
-		}
-	}
+	os.RemoveAll(p.ProjectName + "/.git")
 }
 
 func (p *Project) cloneTemplate() (bool, error) {
@@ -197,6 +190,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 }
 
 func (p *Project) replaceFiles(packageName string) error {
+
 	err := filepath.Walk(p.ProjectName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err

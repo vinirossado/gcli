@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -107,13 +108,26 @@ func RandStringBytes(n int) string {
 	return string(b)
 }
 func runCreate(cmd *cobra.Command, args []string) {
+
+	/*
+		c := NewCreate()
+		c.ProjectName = helper.GetProjectName(".")
+		c.CreateType = cmd.Use
+		c.FilePath, c.StructName = filepath.Split(args[0])
+		c.FileName = strings.ReplaceAll(c.StructName, ".go", "")
+		c.StructName = strutil.UpperFirst(strutil.CamelCase(c.FileName))
+		c.StructNameLowerFirst = strutil.LowerFirst(c.StructName)
+		c.StructNameFirstChar = string(c.StructNameLowerFirst[0])
+		c.StructNameSnakeCase = strutil.SnakeCase(c.StructName)
+
+	*/
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
 	c.CreateType = cmd.Use
 	c.FilePath, c.StructName = filepath.Split(args[0])
-	c.FileName = strings.ReplaceAll(strings.ToUpper(string(c.FileName[0]))+c.FileName[1:], ".go", "")
-	c.StructName = strings.ToLower(string(c.FileName[0])) + c.FileName[1:]
-	c.StructNameLowerFirst = string(c.StructNameLowerFirst[0])
+	c.FileName = strings.ReplaceAll(c.StructName, ".go", "")
+	c.StructName = strutil.UpperFirst(strutil.CamelCase(c.FileName))
+	c.StructNameLowerFirst = strutil.LowerFirst(c.StructName)
 	c.StructNameFirstChar = string(c.StructNameLowerFirst[0])
 	c.StructNameSnakeCase = strutil.SnakeCase(c.StructName)
 	c.Properties = parseProperties(properties)
@@ -163,9 +177,9 @@ func parseProperties(properties string) map[string]string {
 
 func (c *Create) generateFile() {
 	filePath := c.FilePath
-	if strings.Contains(helper.GetProjectRootName(), "gcli") {
-		filePath = fmt.Sprintf("Debug/source/%s/", c.CreateType)
-	}
+	// if strings.Contains(helper.GetProjectRootName(), "gcli") {
+	// 	filePath = fmt.Sprintf("Debug/source/%s/", c.CreateType)
+	// }
 
 	if filePath == "" {
 		filePath = fmt.Sprintf("source/%s/", c.CreateType)
@@ -176,13 +190,18 @@ func (c *Create) generateFile() {
 		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists")
 		return
 	}
-
 	defer func(f *os.File) {
-		helper.UpdateFile(c.CreateType, filePath, "{},", fmt.Sprintf("&%s{},", c.FileName))
+		// 	helper.UpdateFile(c.CreateType, filePath, "{},", fmt.Sprintf("&%s{},", c.FileName))
 		f.Close()
 	}(f)
 
-	t, err := template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
+	var t *template.Template
+	var err error
+	if mustachePath == "" {
+		t, err = template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
+	} else {
+		t, err = template.ParseFiles(path.Join(mustachePath, fmt.Sprintf("%s.mustache", c.CreateType)))
+	}
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
@@ -200,7 +219,8 @@ func (c *Create) generateFile() {
 
 // TODO: Rename Method
 func createFile(dirPath string, filename string) *os.File {
-	filePath := filepath.Join(dirPath + filename)
+
+	filePath := filepath.Join(dirPath, filename)
 
 	err := os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
@@ -218,10 +238,10 @@ func createFile(dirPath string, filename string) *os.File {
 	return file
 }
 
-func containsFilterString(line string) bool {
-	print(line)
-	if strings.Contains(line, "return r") {
-		return true
-	}
-	return false
-}
+// func containsFilterString(line string) bool {
+// 	print(line)
+// 	if strings.Contains(line, "return r") {
+// 		return true
+// 	}
+// 	return false
+// }

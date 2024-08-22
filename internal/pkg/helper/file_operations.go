@@ -183,6 +183,7 @@ func addLineAfterLastPatternWireFile(filename, variableName, newInfo string) err
 	return nil
 }
 
+// TODO: WIP
 func UpdateFile(filetype, filePath, pattern, newLine string) {
 	if filetype == "model" {
 		_ = addLineAfterLastPattern(fmt.Sprintf(GetProjectRootName()+"Debug/source/model/model.go"), pattern, newLine)

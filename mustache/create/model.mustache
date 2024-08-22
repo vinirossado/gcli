@@ -5,7 +5,7 @@ import (
     "time"
 )
 
-type {{ .FileName }} struct {
+type {{ .StructName }} struct {
     ID uint `gorm:"primarykey"`
     {{ range $propName, $propType := .Properties }}
     {{ $propName }} {{ $propType }} `gorm:"column:{{ $propName }}"`{{ end }}
@@ -14,6 +14,6 @@ type {{ .FileName }} struct {
     DeletedAt gorm.DeletedAt `gorm:"column:DeletedAt"`
 }
 
-func (m *{{ .FileName }}) TableName() string {
-    return "{{ .FileNameTitleLower }}"
+func (m *{{ .StructName }}) TableName() string {
+    return "{{ .StructNameLowerFirst }}"
 }
