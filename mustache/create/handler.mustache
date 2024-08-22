@@ -3,10 +3,11 @@ package handler
 import (
     "github.com/gin-gonic/gin"
     "github.com/pkg/errors"
-    "{{ .ProjectName }}/source/service"
-    "{{ .ProjectName }}/pkg/helper/resp"
     "go.uber.org/zap"
     "net/http"
+    
+    "{{ .ProjectName }}/pkg/helper/resp"
+    "{{ .ProjectName }}/source/service"
 )
 
 type {{ .StructName }}Handler struct {
@@ -31,7 +32,7 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
         return
     }
 
-    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .FileName }}ById(params.Id)
+    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .FileName }}ById(ctx, params.Id)
     h.logger.Info("Get{{ .FileName }}ByID", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
 
     if err != nil {
@@ -39,11 +40,11 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
         return
     }
 
-    resp.HandleSuccess(ctx, {{ .StructNameLowerFirst }})
+    resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }})
 }
 
 func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
-    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .FileName }}()
+    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .FileName }}(ctx)
     h.logger.Info("GetAll{{ .FileName }}", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
 
     if err != nil {
@@ -51,7 +52,7 @@ func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
         return
     }
 
-    resp.HandleSuccess(ctx, {{ .StructNameLowerFirst }})
+    resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }})
 }
 
 func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
@@ -62,12 +63,12 @@ func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
         return
     }
 
-       if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{.FileName}}(req); err != nil {
+       if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{.FileName}}(ctx, req); err != nil {
         resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
-    resp.HandleSuccess(ctx, nil)
+    resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
 }
 
 func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
@@ -78,14 +79,14 @@ func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
         return
     }
 
-       if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{.FileName}}(req); err != nil {
+       if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{.FileName}}(ctx, req); err != nil {
         resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
-    resp.HandleSuccess(ctx, nil)
+    resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
 }
 
 func (h *{{ .StructName }}Handler) Delete{{ .StructName }}(ctx *gin.Context) {
-    resp.HandleSuccess(ctx, nil)
+    resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
 }

@@ -2,11 +2,12 @@ package helper
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 func GetProjectName(dir string) string {
@@ -56,7 +57,7 @@ func FindMain(base, excludeDir string) (map[string]string, error) {
 		}
 
 		for _, s := range excludeDirArr {
-			if strings.HasPrefix(path, s) {
+			if strings.HasPrefix(strings.TrimPrefix(path, base), "/"+s) {
 				return nil
 			}
 		}
@@ -69,7 +70,7 @@ func FindMain(base, excludeDir string) (map[string]string, error) {
 			if !strings.Contains(string(content), "package main") {
 				return nil
 			}
-			re := regexp.MustCompile(`func\s+main\s*\('`)
+			re := regexp.MustCompile(`func\s+main\s*\(`)
 			if re.Match(content) {
 				absPath, err := filepath.Abs(path)
 				if err != nil {

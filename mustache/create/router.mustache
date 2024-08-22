@@ -1,10 +1,11 @@
 package routes
 
 import (
+"github.com/gin-gonic/gin"
+
 "{{ .ProjectName }}/pkg/logger"
 "{{ .ProjectName }}/source/handler"
 "{{ .ProjectName }}/source/middleware"
-"github.com/gin-gonic/gin"
 )
 
 func Bind{{.StructName}}Routes(router *gin.Engine, jwt *middleware.JWT, {{.StructNameLowerFirst}}Handler handler.{{.StructName}}Handler, log *logger.Logger) {
