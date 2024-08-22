@@ -50,7 +50,7 @@ func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context
 }
 
 func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Update{{.StructName}}Request) (uint, error) {
-    _, err := Get{{ .StructName }}ById(ctx, StructNameLowerFirst.Id)
+    _, err := Get{{ .StructName }}ById(ctx, {{StructNameLowerFirst}}.Id)
     if err == nil {
         return 0, errors.New("{{.StructNameLowerFirst}} not found")
     }
