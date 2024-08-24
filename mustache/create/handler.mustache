@@ -28,7 +28,7 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
     }
 
     if err := ctx.ShouldBindUri(&params); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, 1, err.Error(), nil)
+        resp.HandleError(ctx, http.StatusBadRequest, err.Error(), nil)
         return
     }
 
@@ -36,7 +36,7 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
     h.logger.Info("Get{{ .FileName }}ByID", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
 
     if err != nil {
-        resp.HandleError(ctx, http.StatusInternalServerError, 1, err.Error(), nil)
+        resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
         return
     }
 
@@ -48,7 +48,7 @@ func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
     h.logger.Info("GetAll{{ .FileName }}", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
 
     if err != nil {
-        resp.HandleError(ctx, http.StatusInternalServerError, 1, err.Error(), nil)
+        resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
         return
     }
 
@@ -59,12 +59,12 @@ func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
     req := new(service.Create{{.FileName}}Request)
 
     if err := ctx.ShouldBindJSON(req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
        if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{.FileName}}(ctx, req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
@@ -75,12 +75,12 @@ func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
     req := new(service.Update{{.FileName}}Request)
 
     if err := ctx.ShouldBindJSON(req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
        if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{.FileName}}(ctx, req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, 1, errors.Wrap(err, "invalid request").Error(), nil)
+        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 

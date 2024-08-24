@@ -81,8 +81,7 @@ func run(cmd *cobra.Command, args []string) {
 	fmt.Printf("\n🎉 Setup DB and run and Docker compose\n\n")
 	fmt.Printf("Done. Now run:\n\n")
 	fmt.Printf("› \033[36mcd %s \033[0m\n", p.ProjectName)
-	fmt.Printf("\n› \033[36mgcli run source/cmd/migration \033[0m\n")
-	fmt.Printf("› \033[36mgcli run source/cmd/server \033[0m\n\n")
+	fmt.Printf("\n› \033[36mgcli run \033[0m\n")
 }
 
 func (p Project) installWire() {

@@ -4,11 +4,12 @@ import (
 "github.com/gin-gonic/gin"
 
 "{{ .ProjectName }}/pkg/logger"
+"{{ .ProjectName }}/pkg/jwt"
 "{{ .ProjectName }}/source/handler"
 "{{ .ProjectName }}/source/middleware"
 )
 
-func Bind{{.StructName}}Routes(router *gin.Engine, jwt *middleware.JWT, {{.StructNameLowerFirst}}Handler handler.{{.StructName}}Handler, log *logger.Logger) {
+func Bind{{.StructName}}Routes(router *gin.Engine, jwt *jwt.JWT, {{.StructNameLowerFirst}}Handler handler.{{.StructName}}Handler, log *logger.Logger) {
     {{.StructNameLowerFirst}} := router.Group("/{{.StructNameLowerFirst}}")
     
     {{.StructNameLowerFirst}}.Use(middleware.StrictAuth(jwt, log))

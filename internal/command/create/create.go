@@ -11,8 +11,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/duke-git/lancet/v2/strutil"
 	"github.com/spf13/cobra"
+	"github.com/vinirossado/strutil"
 
 	"github.com/vinirossado/gcli/internal/pkg/helper"
 	"github.com/vinirossado/gcli/mustache"
