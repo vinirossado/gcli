@@ -5,7 +5,7 @@ import (
     "github.com/pkg/errors"
     "go.uber.org/zap"
     "net/http"
-    
+
     "{{ .ProjectName }}/pkg/helper/resp"
     "{{ .ProjectName }}/source/service"
 )
@@ -32,7 +32,7 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
         return
     }
 
-    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .FileName }}ById(ctx, params.Id)
+    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .StructName }}ById(ctx, params.Id)
     h.logger.Info("Get{{ .FileName }}ByID", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
 
     if err != nil {
@@ -44,7 +44,7 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
 }
 
 func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
-    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .FileName }}(ctx)
+    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .StructName }}(ctx)
     h.logger.Info("GetAll{{ .FileName }}", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
 
     if err != nil {
@@ -56,14 +56,14 @@ func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
 }
 
 func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
-    req := new(service.Create{{.FileName}}Request)
+    req := new(service.Create{{.StructName}}Request)
 
     if err := ctx.ShouldBindJSON(req); err != nil {
         resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
-       if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{.FileName}}(ctx, req); err != nil {
+       if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{ .StructName }}(ctx, req); err != nil {
         resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
@@ -72,14 +72,14 @@ func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
 }
 
 func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
-    req := new(service.Update{{.FileName}}Request)
+    req := new(service.Update{{ .StructName }}Request)
 
     if err := ctx.ShouldBindJSON(req); err != nil {
         resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
 
-       if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{.FileName}}(ctx, req); err != nil {
+       if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{ .StructName }}(ctx, req); err != nil {
         resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
         return
     }
