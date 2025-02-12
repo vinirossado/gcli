@@ -1,3 +1,4 @@
 go 1.23.6
 
+use .
 use ../gcli-advanced-template
