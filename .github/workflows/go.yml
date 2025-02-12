@@ -30,25 +30,22 @@ jobs:
       run: go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 ./...
 
     - name: Run Golangci-lint
-      run: golangci-lint run ./...
+      run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.2
 
     - name: Build for Linux
       run: |
         CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli .
         sudo cp ./bin/gcli /usr/bin/
-
     - name: Build for Darwin AMD64
       run: |
         CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli .
         mkdir -p ~/bin
         cp ./bin/gcli ~/bin/
-
     - name: Build for Darwin ARM64
       run: |
         CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o ./bin/gcli .
         mkdir -p ~/bin
         cp ./bin/gcli ~/bin/
-
     - name: Build for Windows
       run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli.exe
 
