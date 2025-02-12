@@ -29,9 +29,10 @@ Gcli is a command line made in golang to help you create crud in your api projec
 
 # Build with Makefile (Optional).
 1. Install [Make](https://www.gnu.org/software/make/) to run.
-2. Run ```make build linux``` to build the project for linux.
-3. Run ```make build windows``` to build the project for windows.
-4. Run ```make build darwin``` to build the project for darwin.
+2. Run ```make build-linux``` to build the project for linux.
+3. Run ```make build-windows``` to build the project for windows.
+4. Run ```make build-darwin-amd64``` to build the project for darwin.
+5. Run ```make build-darwin-arm64``` to build the project for darwin.
 
 
 ## Commands
