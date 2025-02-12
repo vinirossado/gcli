@@ -178,7 +178,6 @@ func (c *Create) generateFile() {
 		return
 	}
 	defer func(f *os.File) {
-		// 	helper.UpdateFile(c.CreateType, filePath, "{},", fmt.Sprintf("&%s{},", c.FileName))
 		f.Close()
 	}(f)
 

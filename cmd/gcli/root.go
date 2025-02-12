@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 	Use:     "gcli",
 	Example: "gcli new awesome-api",
 	Short:   fmt.Sprintf("\n%s", art),
-	Version: fmt.Sprintf("%s", version.Version),
+	Version: version.Version,
 }
 
 func init() {

@@ -20,7 +20,7 @@ func GetProjectName(dir string) string {
 	defer func(modFile *os.File) {
 		err := modFile.Close()
 		if err != nil {
-
+			fmt.Println("Error closing file:", err)
 		}
 	}(modFile)
 

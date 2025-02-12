@@ -92,7 +92,7 @@ var CmdRun = &cobra.Command{
 				dir = cmdPath[dir]
 			}
 		}
-		signal.Notify(quit, syscall.SIGKILL, syscall.SIGTERM)
+		signal.Notify(quit, syscall.SIGTERM)
 		fmt.Printf("\033[35mgcli run %s.\033[0m\n", dir)
 		fmt.Printf("\033[35mWatch excludeDir %s\033[0m\n", excludeDir)
 		fmt.Printf("\033[35mWatch includeExt %s\033[0m\n", includeExt)
@@ -170,7 +170,9 @@ func watch(dir string, programArgs []string) {
 				event.Op&fsnotify.Write == fsnotify.Write ||
 				event.Op&fsnotify.Remove == fsnotify.Remove {
 				fmt.Printf("\033[36mfile modified: %s\033[0m\n", event.Name)
-				syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+				if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
+					fmt.Println("Error killing process:", err)
+				}
 
 				cmd = start(dir, programArgs)
 			}
