@@ -10,7 +10,6 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -19,10 +18,42 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.22'
+        go-version: '1.23.6'
 
-    - name: Build
-      run: go build -v ./...
+    - name: Verify Modules
+      run: go mod verify
+
+    - name: Run Vulnerability Check
+      run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
+    - name: Run Static Analysis
+      run: go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 ./...
+
+    - name: Run Golangci-lint
+      run: golangci-lint run ./...
+
+    - name: Build for Linux
+      run: |
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli .
+        sudo cp ./bin/gcli /usr/bin/
+
+    - name: Build for Darwin AMD64
+      run: |
+        CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli .
+        mkdir -p ~/bin
+        cp ./bin/gcli ~/bin/
+
+    - name: Build for Darwin ARM64
+      run: |
+        CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o ./bin/gcli .
+        mkdir -p ~/bin
+        cp ./bin/gcli ~/bin/
+
+    - name: Build for Windows
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/gcli.exe
+
+    - name: Install
+      run: go install .
 
     - name: Test
       run: go test -v ./...
