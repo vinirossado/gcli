@@ -1,19 +1,18 @@
 package model
 
 import (
-    "gorm.io/gorm"
-    "time"
+	"gorm.io/gorm"
+	"time"
 )
 
 type {{ .StructName }} struct {
-    ID uint `gorm:"primarykey"`
-    {{ range $propName, $propType := .Properties }}
-    {{ $propName }} {{ $propType }} `gorm:"column:{{ $propName }}"`{{ end }}
-    CreatedAt time.Time `gorm:"column:CreatedAt"`
-    UpdatedAt time.Time `gorm:"column:UpdatedAt"`
-    DeletedAt gorm.DeletedAt `gorm:"column:DeletedAt"`
+	ID uint `gorm:"primarykey"`
+{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }}
+{{ end }}	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 func (m *{{ .StructName }}) TableName() string {
-    return "{{ .StructNameLowerFirst }}"
+	return "{{ .StructNameSnakeCase }}"
 }

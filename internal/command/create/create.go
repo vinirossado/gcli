@@ -54,7 +54,8 @@ func init() {
 	CmdCreateRepository.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 	CmdCreateModel.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
 	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Properties of the model entity (format: name:type)")
+	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Properties: title:string;description:string")
+	CmdCreateAll.Flags().StringVarP(&properties, "properties", "p", "", "Properties: title:string;description:string")
 }
 
 var CmdCreateHandler = &cobra.Command{
@@ -92,7 +93,7 @@ var CmdCreateModel = &cobra.Command{
 var CmdCreateAll = &cobra.Command{
 	Use:     "all",
 	Short:   "Create a new handler & service & repository & model ",
-	Example: "gcli create all user",
+	Example: "gcli create all user title:string description:string age:int",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
 }
@@ -117,7 +118,18 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.StructNameLowerFirst = strutil.LowerFirst(c.StructName)
 	c.StructNameFirstChar = string(c.StructNameLowerFirst[0])
 	c.StructNameSnakeCase = strutil.SnakeCase(c.StructName)
+	// Merge --properties flag with Elixir-style positional args (args[1:])
 	c.Properties = parseProperties(properties)
+	for _, arg := range args[1:] {
+		parts := strings.SplitN(arg, ":", 2)
+		if len(parts) == 2 {
+			name := strutil.UpperFirst(strutil.CamelCase(strings.TrimSpace(parts[0])))
+			propType := normalizeGoType(strings.TrimSpace(parts[1]))
+			if name != "" && propType != "" {
+				c.Properties[name] = propType
+			}
+		}
+	}
 
 	switch c.CreateType {
 
@@ -150,21 +162,40 @@ func runCreate(cmd *cobra.Command, args []string) {
 	}
 }
 
-func parseProperties(properties string) map[string]string {
+func parseProperties(input string) map[string]string {
 	props := make(map[string]string)
-
-	pairs := strings.Split(properties, ",")
-
-	for _, pair := range pairs {
-		parts := strings.Split(pair, ":")
+	if strings.TrimSpace(input) == "" {
+		return props
+	}
+	// Support both ; and , as separators
+	input = strings.ReplaceAll(input, ";", ",")
+	for _, pair := range strings.Split(input, ",") {
+		parts := strings.SplitN(strings.TrimSpace(pair), ":", 2)
 		if len(parts) == 2 {
-			propName := strings.TrimSpace(parts[0])
-			propType := strings.TrimSpace(parts[1])
-			props[propName] = propType
+			name := strutil.UpperFirst(strutil.CamelCase(strings.TrimSpace(parts[0])))
+			propType := normalizeGoType(strings.TrimSpace(parts[1]))
+			if name != "" && propType != "" {
+				props[name] = propType
+			}
 		}
 	}
-
 	return props
+}
+
+// normalizeGoType maps Elixir/common type names to Go types.
+func normalizeGoType(t string) string {
+	switch strings.ToLower(t) {
+	case "integer":
+		return "int"
+	case "float", "decimal":
+		return "float64"
+	case "boolean":
+		return "bool"
+	case "text":
+		return "string"
+	default:
+		return t // pass through: string, int, bool, float64, time.Time, etc.
+	}
 }
 
 func (c *Create) generateFile() {

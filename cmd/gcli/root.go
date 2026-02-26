@@ -33,6 +33,8 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+
 	rootCmd.AddCommand(new.NewCmd)
 	rootCmd.AddCommand(create.CreateCmd)
 	rootCmd.AddCommand(run.CmdRun)
