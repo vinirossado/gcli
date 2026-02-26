@@ -1,0 +1,3 @@
+[submodule "debug"]
+	path = debug
+	url = https://github.com/vinirossado/gcli-advanced-template.git

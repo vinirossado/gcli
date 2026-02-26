@@ -1,0 +1,67 @@
+[
+  {
+    "label": "gcli: create handler [user]",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "exec",
+    "program": "/tmp/gcli-debug",
+    "args": ["create", "handler", "user"],
+    "cwd": "$ZED_WORKTREE_ROOT/debug",
+    "build": {
+      "command": "go",
+      "args": ["build", "-gcflags=all=-N -l", "-o", "/tmp/gcli-debug", "."]
+    }
+  },
+  {
+    "label": "gcli: create service [user]",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "exec",
+    "program": "/tmp/gcli-debug",
+    "args": ["create", "service", "user"],
+    "cwd": "$ZED_WORKTREE_ROOT/debug",
+    "build": {
+      "command": "go",
+      "args": ["build", "-gcflags=all=-N -l", "-o", "/tmp/gcli-debug", "."]
+    }
+  },
+  {
+    "label": "gcli: create repository [user]",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "exec",
+    "program": "/tmp/gcli-debug",
+    "args": ["create", "repository", "user"],
+    "cwd": "$ZED_WORKTREE_ROOT/debug",
+    "build": {
+      "command": "go",
+      "args": ["build", "-gcflags=all=-N -l", "-o", "/tmp/gcli-debug", "."]
+    }
+  },
+  {
+    "label": "gcli: create model [user]",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "exec",
+    "program": "/tmp/gcli-debug",
+    "args": ["create", "model", "user"],
+    "cwd": "$ZED_WORKTREE_ROOT/debug",
+    "build": {
+      "command": "go",
+      "args": ["build", "-gcflags=all=-N -l", "-o", "/tmp/gcli-debug", "."]
+    }
+  },
+  {
+    "label": "gcli: create all [user]",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "exec",
+    "program": "/tmp/gcli-debug",
+    "args": ["create", "all", "user"],
+    "cwd": "$ZED_WORKTREE_ROOT/debug",
+    "build": {
+      "command": "go",
+      "args": ["build", "-gcflags=all=-N -l", "-o", "/tmp/gcli-debug", "."]
+    }
+  }
+]

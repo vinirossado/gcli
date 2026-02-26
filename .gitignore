@@ -37,6 +37,12 @@ internal/source/*
 /Debug
 /Debug/*
 
+# Debug sandbox — generated files only (submodule itself is tracked)
+/debug/source/handler/
+/debug/source/service/
+/debug/source/repository/
+/debug/source/router/
+
 # The following are some files that might be created when running a Go application
 # Uncomment if you want to ignore them
 # /app.log

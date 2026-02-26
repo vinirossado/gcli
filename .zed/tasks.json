@@ -1,0 +1,58 @@
+[
+  {
+    "label": "gcli: create handler [user]",
+    "command": "sh",
+    "args": ["-c", "cd $ZED_WORKTREE_ROOT && go build -o /tmp/gcli-debug . && cd debug && /tmp/gcli-debug create handler user"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "gcli: create service [user]",
+    "command": "sh",
+    "args": ["-c", "cd $ZED_WORKTREE_ROOT && go build -o /tmp/gcli-debug . && cd debug && /tmp/gcli-debug create service user"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "gcli: create repository [user]",
+    "command": "sh",
+    "args": ["-c", "cd $ZED_WORKTREE_ROOT && go build -o /tmp/gcli-debug . && cd debug && /tmp/gcli-debug create repository user"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "gcli: create model [user]",
+    "command": "sh",
+    "args": ["-c", "cd $ZED_WORKTREE_ROOT && go build -o /tmp/gcli-debug . && cd debug && /tmp/gcli-debug create model user"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "gcli: create all [user]",
+    "command": "sh",
+    "args": ["-c", "cd $ZED_WORKTREE_ROOT && go build -o /tmp/gcli-debug . && cd debug && /tmp/gcli-debug create all user"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "gcli: debug (dlv :2345) create handler [user]",
+    "command": "sh",
+    "args": ["-c", "cd $ZED_WORKTREE_ROOT && dlv debug --headless --listen=:2345 --api-version=2 --wd ./debug . -- create handler user"],
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "gcli: debug clean",
+    "command": "sh",
+    "args": ["-c", "rm -rf $ZED_WORKTREE_ROOT/debug/source"],
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  }
+]

@@ -10,7 +10,6 @@ require (
 )
 
 require (
-	github.com/duke-git/lancet/v2 v2.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect

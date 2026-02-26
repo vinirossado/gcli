@@ -25,6 +25,7 @@ import (
 )
 
 var quit = make(chan os.Signal, 1)
+const errorMsg = "Error:"
 
 type Run struct {
 }
@@ -108,7 +109,7 @@ func watch(dir string, programArgs []string) {
 
 	// Create a new file watcher
 	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
+		fmt.Println(errorMsg, err)
 		fmt.Println("Error:", err)
 		return
 	}

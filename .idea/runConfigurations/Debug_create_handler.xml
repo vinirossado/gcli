@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Debug: create handler [user]" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="gcli" />
+    <working_directory value="$PROJECT_DIR$/debug" />
+    <parameters value="create handler user" />
+    <kind value="DIRECTORY" />
+    <package value="github.com/vinirossado/gcli" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/main.go" />
+    <method v="2" />
+  </configuration>
+</component>
