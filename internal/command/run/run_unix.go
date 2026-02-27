@@ -112,7 +112,11 @@ func watch(dir string, programArgs []string) {
 		fmt.Println("Error:", err)
 		return
 	}
-	defer watcher.Close()
+	defer func() {
+		if err := watcher.Close(); err != nil {
+			fmt.Println("watcher close error:", err)
+		}
+	}()
 
 	excludeDirArr := strings.Split(excludeDir, ",")
 	includeExtArr := strings.Split(includeExt, ",")

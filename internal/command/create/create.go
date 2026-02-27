@@ -214,7 +214,9 @@ func (c *Create) generateFile() {
 		return
 	}
 	defer func(f *os.File) {
-		f.Close()
+		if err := f.Close(); err != nil {
+			log.Printf("warn: failed to close file: %v", err)
+		}
 	}(f)
 
 	var t *template.Template

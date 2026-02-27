@@ -105,7 +105,9 @@ func (p *Project) modTidy() error {
 }
 
 func (p *Project) rmGit() {
-	os.RemoveAll(p.ProjectName + "/.git")
+	if err := os.RemoveAll(p.ProjectName + "/.git"); err != nil {
+		fmt.Println("remove .git error: ", err)
+	}
 }
 
 func (p *Project) cloneTemplate() (bool, error) {
@@ -160,13 +162,14 @@ func (p *Project) cloneTemplate() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if layout == "Advanced" {
+		switch layout {
+		case "Advanced":
 			repo = config.RepoFullStructure
-		} else if layout == "Chat" {
+		case "Chat":
 			repo = config.RepoChat
-		} else if layout == "Lite" {
+		case "Lite":
 			repo = config.RepoLiteStructure
-		} else {
+		default:
 			repo = config.RepoBasicStructure
 		}
 
