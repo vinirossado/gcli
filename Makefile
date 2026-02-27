@@ -14,7 +14,7 @@ help: ## Show this help message
 
 .PHONY: debug-build debug debug-init debug-reset debug-create-handler debug-create-service \
         debug-create-repository debug-create-model debug-create-all \
-        debug-dlv debug-clean
+        debug-dlv debug-clean debug-test
 
 debug-build: ## Compile the CLI to /tmp/gcli-debug (with debug symbols)
 	go build -gcflags="all=-N -l" -o $(DEBUG_BIN) .
@@ -45,6 +45,9 @@ debug-create-all: debug-build ## Create handler+service+repository+model in debu
 
 debug-dlv: ## Start Delve headless on :2345 (attach from IDE)  [ARGS="create handler user"]
 	dlv debug --headless --listen=:2345 --api-version=2 --wd $(DEBUG_DIR) . -- $(ARGS)
+
+debug-test: ## Run repository integration tests in debug/ (requires Docker)  [NAME=order]
+	cd $(DEBUG_DIR) && go test ./source/repository/ -v -run "Test$(shell echo $(NAME) | awk '{print toupper(substr($$0,1,1)) substr($$0,2)}')" -timeout 120s
 
 debug-clean: ## Remove only generated (untracked) files and restore all modified template files
 	cd $(DEBUG_DIR) && git clean -fd \
