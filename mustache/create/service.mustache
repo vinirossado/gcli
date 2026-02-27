@@ -13,19 +13,22 @@ import (
 // ---- Request DTOs ----
 
 type Create{{ .StructName }}Request struct {
-{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}" binding:"required"`
+{{ if .Properties }}{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}" binding:"required"`
+{{ end }}{{ else }}	// TODO: define fields — re-run with: gcli create all {{ lower .StructName }} field:type ...
 {{ end }}}
 
 type Update{{ .StructName }}Request struct {
 	Id uint `json:"id" binding:"required"`
-{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
+{{ if .Properties }}{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
+{{ end }}{{ else }}	// TODO: define fields — re-run with: gcli create all {{ lower .StructName }} field:type ...
 {{ end }}}
 
 // ---- Response DTO ----
 
 type {{ .StructName }}Response struct {
 	Id        uint      `json:"id"`
-{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
+{{ if .Properties }}{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
+{{ end }}{{ else }}	// TODO: define fields — re-run with: gcli create all {{ lower .StructName }} field:type ...
 {{ end }}	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
