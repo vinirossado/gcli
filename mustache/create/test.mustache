@@ -2,12 +2,18 @@ package repository_test
 
 import (
 	"context"
+	"log"
+	"os"
 	"testing"
+	"time"
 
-	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/testcontainers/testcontainers-go"
+	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"go.uber.org/zap"
+	gpostgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"{{ .ProjectName }}/pkg/logger"
@@ -15,13 +21,51 @@ import (
 	"{{ .ProjectName }}/source/repository"
 )
 
-func setup{{ .StructName }}DB(t *testing.T) repository.{{ .StructName }}Repository {
-	t.Helper()
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&model.{{ .StructName }}{}))
-	log := &logger.Logger{Logger: zap.NewNop()}
-	return repository.New{{ .StructName }}Repository(repository.NewRepository(log, db))
+var (
+	testDB  *gorm.DB
+	testLog *logger.Logger
+)
+
+// TestMain spins up a real Postgres container once for all tests in this file,
+// runs the suite, then tears it down. Each test is responsible for cleaning
+// up the rows it creates via t.Cleanup so tests do not interfere.
+func TestMain(m *testing.M) {
+	ctx := context.Background()
+
+	pgContainer, err := tcpostgres.Run(ctx, "postgres:16-alpine",
+		tcpostgres.WithDatabase("testdb"),
+		tcpostgres.WithUsername("test"),
+		tcpostgres.WithPassword("test"),
+		testcontainers.WithWaitStrategy(
+			wait.ForLog("database system is ready to accept connections").
+				WithOccurrence(2).
+				WithStartupTimeout(30*time.Second),
+		),
+	)
+	if err != nil {
+		log.Fatalf("failed to start postgres container: %v", err)
+	}
+	defer pgContainer.Terminate(ctx)
+
+	connStr, err := pgContainer.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		log.Fatalf("failed to get connection string: %v", err)
+	}
+
+	testDB, err = gorm.Open(gpostgres.Open(connStr), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect to postgres: %v", err)
+	}
+	if err = testDB.AutoMigrate(&model.{{ .StructName }}{}); err != nil {
+		log.Fatalf("failed to auto-migrate: %v", err)
+	}
+
+	testLog = &logger.Logger{Logger: zap.NewNop()}
+	os.Exit(m.Run())
+}
+
+func new{{ .StructName }}Repo() repository.{{ .StructName }}Repository {
+	return repository.New{{ .StructName }}Repository(repository.NewRepository(testLog, testDB))
 }
 
 func new{{ .StructName }}Entity() *model.{{ .StructName }} {
@@ -31,20 +75,23 @@ func new{{ .StructName }}Entity() *model.{{ .StructName }} {
 }
 
 func Test{{ .StructName }}_Create(t *testing.T) {
-	repo := setup{{ .StructName }}DB(t)
+	repo := new{{ .StructName }}Repo()
 	ctx := context.Background()
 
 	id, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
 	require.NoError(t, err)
 	assert.Greater(t, id, uint(0))
+
+	t.Cleanup(func() { testDB.Unscoped().Delete(&model.{{ .StructName }}{}, id) })
 }
 
 func Test{{ .StructName }}_GetById(t *testing.T) {
-	repo := setup{{ .StructName }}DB(t)
+	repo := new{{ .StructName }}Repo()
 	ctx := context.Background()
 
 	id, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
 	require.NoError(t, err)
+	t.Cleanup(func() { testDB.Unscoped().Delete(&model.{{ .StructName }}{}, id) })
 
 	found, err := repo.Get{{ .StructName }}ById(ctx, id)
 	require.NoError(t, err)
@@ -52,7 +99,11 @@ func Test{{ .StructName }}_GetById(t *testing.T) {
 }
 
 func Test{{ .StructName }}_GetAll(t *testing.T) {
-	repo := setup{{ .StructName }}DB(t)
+	// Truncate first so the count assertion is not affected by other tests.
+	testDB.Unscoped().Where("1 = 1").Delete(&model.{{ .StructName }}{})
+	t.Cleanup(func() { testDB.Unscoped().Where("1 = 1").Delete(&model.{{ .StructName }}{}) })
+
+	repo := new{{ .StructName }}Repo()
 	ctx := context.Background()
 
 	for range 3 {
@@ -66,12 +117,13 @@ func Test{{ .StructName }}_GetAll(t *testing.T) {
 }
 
 func Test{{ .StructName }}_Update(t *testing.T) {
-	repo := setup{{ .StructName }}DB(t)
+	repo := new{{ .StructName }}Repo()
 	ctx := context.Background()
 
 	entity := new{{ .StructName }}Entity()
 	id, err := repo.Create{{ .StructName }}(ctx, entity)
 	require.NoError(t, err)
+	t.Cleanup(func() { testDB.Unscoped().Delete(&model.{{ .StructName }}{}, id) })
 
 	entity.ID = id
 	_, err = repo.Update{{ .StructName }}(ctx, entity)
@@ -79,15 +131,17 @@ func Test{{ .StructName }}_Update(t *testing.T) {
 }
 
 func Test{{ .StructName }}_Delete(t *testing.T) {
-	repo := setup{{ .StructName }}DB(t)
+	repo := new{{ .StructName }}Repo()
 	ctx := context.Background()
 
 	id, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
 	require.NoError(t, err)
+	// Hard-delete after the test so the row does not linger (soft-delete leaves it in the table).
+	t.Cleanup(func() { testDB.Unscoped().Delete(&model.{{ .StructName }}{}, id) })
 
 	err = repo.Delete{{ .StructName }}(ctx, id)
 	require.NoError(t, err)
 
 	_, err = repo.Get{{ .StructName }}ById(ctx, id)
-	assert.Error(t, err, "expected error after delete")
+	assert.Error(t, err, "record should be unreachable after soft-delete")
 }
