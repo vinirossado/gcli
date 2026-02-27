@@ -141,6 +141,23 @@ func parseProperties(input string) map[string]string {
 	return props
 }
 
+// gormTagForType returns a GORM struct tag for a given Go type.
+func gormTagForType(goType string) string {
+	switch strings.ToLower(goType) {
+	case "string":
+		return `gorm:"type:varchar(255);not null"`
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64":
+		return `gorm:"not null;default:0"`
+	case "float32", "float64":
+		return `gorm:"type:decimal(10,2);not null;default:0"`
+	case "bool":
+		return `gorm:"not null;default:false"`
+	default:
+		return ""
+	}
+}
+
 // normalizeGoType maps common/Elixir type names to Go types.
 func normalizeGoType(t string) string {
 	switch strings.ToLower(t) {
@@ -175,8 +192,9 @@ func (c *Create) generateFile() {
 	}(f)
 
 	funcMap := template.FuncMap{
-		"snake": strutil.SnakeCase,
-		"lower": strings.ToLower,
+		"snake":   strutil.SnakeCase,
+		"lower":   strings.ToLower,
+		"gormTag": gormTagForType,
 	}
 
 	var t *template.Template

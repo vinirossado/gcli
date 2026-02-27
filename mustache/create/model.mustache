@@ -1,14 +1,16 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type {{ .StructName }} struct {
 	ID uint `gorm:"primarykey"`
-{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }}
-{{ end }}	CreatedAt time.Time
+{{ range $name, $type := .Properties }}{{ $tag := gormTag $type }}{{ if $tag }}	{{ $name }} {{ $type }} `{{ $tag }}`
+{{ else }}	{{ $name }} {{ $type }}
+{{ end }}{{ end }}	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
