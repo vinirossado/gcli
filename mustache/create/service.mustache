@@ -1,82 +1,77 @@
 package service
 
 import (
-    "github.com/pkg/errors"
-    "context"
-    
-    "{{ .ProjectName }}/source/model"
-    "{{ .ProjectName }}/source/repository"
-    "{{ .ProjectName }}/pkg/helper/mapper"
+	"context"
+
+	"github.com/pkg/errors"
+
+	"{{ .ProjectName }}/source/model"
+	"{{ .ProjectName }}/source/repository"
 )
 
 type Create{{ .StructName }}Request struct {
-	Id       uint   `json:"id" binding:"required"`
-}
+{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}" binding:"required"`
+{{ end }}}
 
 type Update{{ .StructName }}Request struct {
-	Id       uint   `json:"id" binding:"required"`
-}
-
+	Id uint `json:"id" binding:"required"`
+{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
+{{ end }}}
 
 type {{ .StructName }}Service interface {
-    GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
-    Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
-    Create{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Create{{.StructName}}Request) (uint, error)
-    Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Update{{.StructName}}Request) (uint, error)
-    Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error)
+	GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
+	Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
+	Create{{ .StructName }}(ctx context.Context, req *Create{{ .StructName }}Request) (uint, error)
+	Update{{ .StructName }}(ctx context.Context, req *Update{{ .StructName }}Request) (uint, error)
+	Delete{{ .StructName }}(ctx context.Context, id uint) error
 }
 
 type {{ .StructNameLowerFirst }}Service struct {
-    *Service
-    {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository
+	*Service
+	{{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository
 }
 
 func New{{ .StructName }}Service(service *Service, {{ .StructNameLowerFirst }}Repository repository.{{ .StructName }}Repository) {{ .StructName }}Service {
-    return &{{ .StructNameLowerFirst }}Service{
-        Service:        service,
-        {{ .StructNameLowerFirst }}Repository: {{ .StructNameLowerFirst }}Repository,
-    }
+	return &{{ .StructNameLowerFirst }}Service{
+		Service:                       service,
+		{{ .StructNameLowerFirst }}Repository: {{ .StructNameLowerFirst }}Repository,
+	}
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) GetAll{{ .StructName }}(ctx context.Context, ) (*[]model.{{ .StructName }}, error) {
-    return s.{{ .StructNameLowerFirst }}Repository.GetAll{{ .StructName }}(ctx)
+func (s *{{ .StructNameLowerFirst }}Service) GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error) {
+	return s.{{ .StructNameLowerFirst }}Repository.GetAll{{ .StructName }}(ctx)
 }
 
 func (s *{{ .StructNameLowerFirst }}Service) Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error) {
-    {{.StructNameLowerFirst}}, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, id)
-    if err != nil {
-        return nil, err
-    }
-
-    return {{.StructNameLowerFirst}}, nil
+	{{ .StructNameLowerFirst }}, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return {{ .StructNameLowerFirst }}, nil
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Create{{.StructName}}Request) (uint, error) {
-    var {{.StructNameLowerFirst}}Entity model.{{.StructName}}
-    mapper.Map({{.StructNameLowerFirst}}, &{{.StructNameLowerFirst}}Entity)
-
-    return s.{{ .StructNameLowerFirst }}Repository.Create{{ .StructName }}(ctx, &{{.StructNameLowerFirst}}Entity)
+func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context.Context, req *Create{{ .StructName }}Request) (uint, error) {
+	entity := &model.{{ .StructName }}{}
+{{ range $name, $type := .Properties }}	entity.{{ $name }} = req.{{ $name }}
+{{ end }}	return s.{{ .StructNameLowerFirst }}Repository.Create{{ .StructName }}(ctx, entity)
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *Update{{.StructName}}Request) (uint, error) {
-    _, err := s.Get{{ .StructName }}ById(ctx, {{.StructNameLowerFirst}}.Id)
-    if err == nil {
-        return 0, errors.New("{{.StructNameLowerFirst}} not found")
-    }
+func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, req *Update{{ .StructName }}Request) (uint, error) {
+	_, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, req.Id)
+	if err != nil {
+		return 0, errors.New("{{ .StructNameLowerFirst }} not found")
+	}
 
-    var {{.StructNameLowerFirst}}Entity model.{{.StructName}}
-    mapper.Map({{.StructNameLowerFirst}}, &{{.StructNameLowerFirst}}Entity)
-
-    return s.{{ .StructNameLowerFirst }}Repository.Update{{ .StructName }}(ctx, &{{.StructNameLowerFirst}}Entity)
+	entity := &model.{{ .StructName }}{}
+{{ range $name, $type := .Properties }}	entity.{{ $name }} = req.{{ $name }}
+{{ end }}	entity.ID = req.Id
+	return s.{{ .StructNameLowerFirst }}Repository.Update{{ .StructName }}(ctx, entity)
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error) {
-    _, err := s.Get{{ .StructName }}ById(ctx, id)
-    if err == nil {
-        return 0, errors.New("{{.StructNameLowerFirst}} not found")
-    }
-
-    return s.{{ .StructNameLowerFirst }}Repository.Delete{{ .StructName }}(ctx, id)
+func (s *{{ .StructNameLowerFirst }}Service) Delete{{ .StructName }}(ctx context.Context, id uint) error {
+	_, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, id)
+	if err != nil {
+		return errors.New("{{ .StructNameLowerFirst }} not found")
+	}
+	return s.{{ .StructNameLowerFirst }}Repository.Delete{{ .StructName }}(ctx, id)
 }
-
-

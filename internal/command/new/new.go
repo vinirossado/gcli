@@ -141,21 +141,18 @@ func (p *Project) cloneTemplate() (bool, error) {
 			Message: "Please select a layout",
 			Options: []string{
 				"Advanced",
-				"Lite - WIP",
-				"Basic - WIP",
-				"Chat - WIP",
+				"Lite (WIP)",
+				"Basic (WIP)",
 			},
 			Description: func(value string, index int) string {
-				if index == 1 {
-					return "A lite project structure"
+				switch index {
+				case 1:
+					return "Lightweight project structure — work in progress"
+				case 2:
+					return "Minimal project structure — work in progress"
+				default:
+					return "Full-featured: Wire, Gin, JWT, GORM, Redis, rate limiting, and more"
 				}
-				if index == 2 {
-					return "A basic project structure"
-				}
-				if index == 3 {
-					return "A simple chat room containing websocker/tcp"
-				}
-				return "It has rich functions such as: Wire, Gin, SuaMae, MinhaMae, VossaMae e etc..."
 			},
 		}
 		err := survey.AskOne(prompt, &layout)
@@ -165,9 +162,7 @@ func (p *Project) cloneTemplate() (bool, error) {
 		switch layout {
 		case "Advanced":
 			repo = config.RepoFullStructure
-		case "Chat":
-			repo = config.RepoChat
-		case "Lite":
+		case "Lite (WIP)":
 			repo = config.RepoLiteStructure
 		default:
 			repo = config.RepoBasicStructure

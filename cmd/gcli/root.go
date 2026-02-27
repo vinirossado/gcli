@@ -40,9 +40,6 @@ func init() {
 	rootCmd.AddCommand(run.CmdRun)
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
 
-	create.CreateCmd.AddCommand(create.CmdCreateHandler)
-	create.CreateCmd.AddCommand(create.CmdCreateService)
-	create.CreateCmd.AddCommand(create.CmdCreateRepository)
 	create.CreateCmd.AddCommand(create.CmdCreateModel)
 	create.CreateCmd.AddCommand(create.CmdCreateAll)
 

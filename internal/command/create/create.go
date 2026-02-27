@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
@@ -36,78 +35,38 @@ func NewCreate() *Create {
 }
 
 var CreateCmd = &cobra.Command{
-	Use:     "create [type] [handler-name]",
-	Short:   "Create a new handler/service/repository/model",
-	Example: "gcli create handler user",
-	Args:    cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-	},
+	Use:   "create [model|all] [entity-name]",
+	Short: "Generate Go source files for an entity",
 }
 
 var (
 	mustachePath string
+	properties   string
 )
 
 func init() {
-	CmdCreateHandler.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-	CmdCreateService.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-	CmdCreateRepository.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-	CmdCreateModel.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "mustache path")
-	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Properties: title:string;description:string")
-	CmdCreateAll.Flags().StringVarP(&properties, "properties", "p", "", "Properties: title:string;description:string")
-}
-
-var CmdCreateHandler = &cobra.Command{
-	Use:     "handler",
-	Short:   "Create a new handler ",
-	Example: "gcli create handler user",
-	Args:    cobra.MinimumNArgs(1),
-	Run:     runCreate,
-}
-
-var CmdCreateService = &cobra.Command{
-	Use:     "service",
-	Short:   "Create a new service",
-	Example: "gcli create service user",
-	Args:    cobra.MinimumNArgs(1),
-	Run:     runCreate,
-}
-
-var CmdCreateRepository = &cobra.Command{
-	Use:     "repository",
-	Short:   "Create a new repository ",
-	Example: "gcli create repository user",
-	Args:    cobra.MinimumNArgs(1),
-	Run:     runCreate,
+	CmdCreateModel.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "Path to custom mustache templates")
+	CmdCreateAll.Flags().StringVarP(&mustachePath, "mustache-path", "t", mustachePath, "Path to custom mustache templates")
+	CmdCreateModel.Flags().StringVarP(&properties, "properties", "p", "", "Entity fields: title:string;price:float64")
+	CmdCreateAll.Flags().StringVarP(&properties, "properties", "p", "", "Entity fields: title:string;price:float64")
 }
 
 var CmdCreateModel = &cobra.Command{
 	Use:     "model",
-	Short:   "Create a new model ",
-	Example: "gcli create model user",
+	Short:   "Generate a GORM model",
+	Example: "gcli create model product title:string price:float64",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
 }
 
 var CmdCreateAll = &cobra.Command{
 	Use:     "all",
-	Short:   "Create a new handler & service & repository & model ",
-	Example: "gcli create all user title:string description:string age:int",
+	Short:   "Generate handler, service, repository, model and router for an entity",
+	Example: "gcli create all product title:string price:float64",
 	Args:    cobra.MinimumNArgs(1),
 	Run:     runCreate,
 }
-var properties string
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-func RandStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
 func runCreate(cmd *cobra.Command, args []string) {
 	c := NewCreate()
 	c.ProjectName = helper.GetProjectName(".")
@@ -118,6 +77,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	c.StructNameLowerFirst = strutil.LowerFirst(c.StructName)
 	c.StructNameFirstChar = string(c.StructNameLowerFirst[0])
 	c.StructNameSnakeCase = strutil.SnakeCase(c.StructName)
+
 	// Merge --properties flag with Elixir-style positional args (args[1:])
 	c.Properties = parseProperties(properties)
 	for _, arg := range args[1:] {
@@ -132,8 +92,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	}
 
 	switch c.CreateType {
-
-	case "handler", "service", "repository", "model", "router":
+	case "model":
 		c.generateFile()
 
 	case "all":
@@ -158,7 +117,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 		c.appendToHTTPRouter()
 
 	default:
-		log.Fatalf("Invalid handler type %s", c.CreateType)
+		log.Fatalf("Invalid create type: %s", c.CreateType)
 	}
 }
 
@@ -182,7 +141,7 @@ func parseProperties(input string) map[string]string {
 	return props
 }
 
-// normalizeGoType maps Elixir/common type names to Go types.
+// normalizeGoType maps common/Elixir type names to Go types.
 func normalizeGoType(t string) string {
 	switch strings.ToLower(t) {
 	case "integer":
@@ -194,23 +153,19 @@ func normalizeGoType(t string) string {
 	case "text":
 		return "string"
 	default:
-		return t // pass through: string, int, bool, float64, time.Time, etc.
+		return t
 	}
 }
 
 func (c *Create) generateFile() {
 	filePath := c.FilePath
-	// if strings.Contains(helper.GetProjectRootName(), "gcli") {
-	// 	filePath = fmt.Sprintf("Debug/source/%s/", c.CreateType)
-	// }
-
 	if filePath == "" {
 		filePath = fmt.Sprintf("source/%s/", c.CreateType)
 	}
 
 	f := createFile(filePath, strings.ToLower(c.FileName)+".go")
 	if f == nil {
-		log.Printf("warn: file %s%s %s", filePath, strings.ToLower(c.FileName)+".go", "already exists")
+		log.Printf("warn: file %s%s already exists, skipping", filePath, strings.ToLower(c.FileName)+".go")
 		return
 	}
 	defer func(f *os.File) {
@@ -219,40 +174,39 @@ func (c *Create) generateFile() {
 		}
 	}(f)
 
+	funcMap := template.FuncMap{
+		"snake": strutil.SnakeCase,
+		"lower": strings.ToLower,
+	}
+
 	var t *template.Template
 	var err error
+	name := fmt.Sprintf("%s.mustache", c.CreateType)
 	if mustachePath == "" {
-		t, err = template.ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s.mustache", c.CreateType))
+		t, err = template.New(name).Funcs(funcMap).ParseFS(mustache.CreateTemplateFS, fmt.Sprintf("create/%s", name))
 	} else {
-		t, err = template.ParseFiles(path.Join(mustachePath, fmt.Sprintf("%s.mustache", c.CreateType)))
+		t, err = template.New(name).Funcs(funcMap).ParseFiles(path.Join(mustachePath, name))
 	}
 	if err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
-	err = t.Execute(f, c)
-	if err != nil {
+	if err = t.Execute(f, c); err != nil {
 		log.Fatalf("create %s error: %s", c.CreateType, err.Error())
 	}
 
 	fileSize, _ := f.Stat()
-
-	kilobytes := math.Round(float64(fileSize.Size()) / 1024)
-
-	log.Printf("Created new %s: %s (%vkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kilobytes)
+	kb := math.Round(float64(fileSize.Size()) / 1024)
+	log.Printf("Created %s: %s (%.0fkb)", c.CreateType, filePath+strings.ToLower(c.FileName)+".go", kb)
 }
 
-// TODO: Rename Method
 func createFile(dirPath string, filename string) *os.File {
-
 	filePath := filepath.Join(dirPath, filename)
 
-	err := os.MkdirAll(dirPath, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		log.Fatalf("Failed to create dir %s: %v", dirPath, err)
 	}
 
-	stat, _ := os.Stat(filePath)
-	if stat != nil {
+	if stat, _ := os.Stat(filePath); stat != nil {
 		return nil
 	}
 	file, err := os.Create(filePath)
@@ -262,8 +216,8 @@ func createFile(dirPath string, filename string) *os.File {
 	return file
 }
 
-// appendToModels finds source/model/model.go and injects &<StructName>{} into
-// the return []interface{}{} block, so GORM's auto-migrate stays in sync.
+// appendToModels injects &<StructName>{} into source/model/model.go's
+// RetrieveAll() return block so GORM's auto-migrate stays in sync.
 func (c *Create) appendToModels() {
 	const modelsFile = "source/model/model.go"
 
@@ -282,7 +236,7 @@ func (c *Create) appendToModels() {
 	lines := strings.Split(string(data), "\n")
 	inBlock := false
 	insertAt := -1
-	indent := "\t\t" // default; overwritten when we find an existing entry
+	indent := "\t\t"
 
 	for i, line := range lines {
 		if strings.Contains(line, "return []interface{}{") {
@@ -291,7 +245,6 @@ func (c *Create) appendToModels() {
 		}
 		if inBlock {
 			trimmed := strings.TrimSpace(line)
-			// Capture indentation from the first existing entry (e.g. "\t\t&User{},")
 			if strings.HasPrefix(trimmed, "&") {
 				indent = line[:len(line)-len(strings.TrimLeft(line, "\t "))]
 			}
@@ -317,11 +270,10 @@ func (c *Create) appendToModels() {
 		log.Printf("warn: failed to update %s: %v", modelsFile, err)
 		return
 	}
-
 	log.Printf("Registered %s in %s", entry, modelsFile)
 }
 
-// appendToWireSet injects an entry into a named wire.NewSet(...) block inside filePath.
+// appendToWireSet injects an entry into a named wire.NewSet(...) block.
 func (c *Create) appendToWireSet(filePath, setVarName, entry string) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -375,8 +327,6 @@ func (c *Create) appendToWireSet(filePath, setVarName, entry string) {
 	log.Printf("Registered %s in %s (%s)", entry, filePath, setVarName)
 }
 
-// appendToServerWire injects the repository, service and handler constructors
-// into source/cmd/server/wire.go.
 func (c *Create) appendToServerWire() {
 	const wireFile = "source/cmd/server/wire.go"
 	c.appendToWireSet(wireFile, "repositorySet", fmt.Sprintf("repository.New%sRepository", c.StructName))
@@ -384,16 +334,13 @@ func (c *Create) appendToServerWire() {
 	c.appendToWireSet(wireFile, "handlerSet", fmt.Sprintf("handler.New%sHandler", c.StructName))
 }
 
-// appendToMigrationWire injects the repository constructor into
-// source/cmd/migration/wire.go.
 func (c *Create) appendToMigrationWire() {
 	const wireFile = "source/cmd/migration/wire.go"
 	c.appendToWireSet(wireFile, "repositorySet", fmt.Sprintf("repository.New%sRepository", c.StructName))
 }
 
-// appendToHTTPRouter injects the new handler into NewHTTPServer's parameter list
-// and calls Bind<Entity>Routes(strictAuthRouter, ...) inside the v1 block so
-// routes land under /v1/<entity> with auth middleware already applied.
+// appendToHTTPRouter injects the handler parameter into NewHTTPServer and
+// calls Bind<Entity>Routes(strictAuthRouter, ...) inside the v1 block.
 func (c *Create) appendToHTTPRouter() {
 	const httpFile = "source/router/http.go"
 
@@ -407,7 +354,7 @@ func (c *Create) appendToHTTPRouter() {
 	routeCall := fmt.Sprintf("Bind%sRoutes(strictAuthRouter, jwt, *%sHandler, logger)", c.StructName, c.StructNameLowerFirst)
 	content := string(data)
 
-	// --- Inject 1: add handler parameter to NewHTTPServer ---
+	// Inject 1: add handler parameter to NewHTTPServer
 	if !strings.Contains(content, handlerParam) {
 		lines := strings.Split(content, "\n")
 		inFunc := false
@@ -421,12 +368,10 @@ func (c *Create) appendToHTTPRouter() {
 			}
 			if inFunc {
 				trimmed := strings.TrimSpace(line)
-				// Track the last *handler.XxxHandler parameter line
 				if strings.Contains(trimmed, "*handler.") {
 					insertAt = i + 1
 					indent = line[:len(line)-len(strings.TrimLeft(line, "\t "))]
 				}
-				// Stop at the closing ) of the parameter list
 				if strings.HasPrefix(trimmed, ")") {
 					break
 				}
@@ -446,9 +391,7 @@ func (c *Create) appendToHTTPRouter() {
 		}
 	}
 
-	// --- Inject 2: Bind<Entity>Routes(strictAuthRouter, ...) inside the v1 block ---
-	// We look for the single-tab "}" that closes the v1 outer block and insert
-	// just before it, where strictAuthRouter is still in scope.
+	// Inject 2: Bind<Entity>Routes inside the v1 block
 	if !strings.Contains(content, routeCall) {
 		lines := strings.Split(content, "\n")
 		passedStrictAuth := false
@@ -458,14 +401,12 @@ func (c *Create) appendToHTTPRouter() {
 			if strings.Contains(line, "strictAuthRouter := v1.Group") {
 				passedStrictAuth = true
 			}
-			// The v1 outer block closes at a single-tab "}" — exactly "\t}"
 			if passedStrictAuth && line == "\t}" {
 				insertAt = i
 				break
 			}
 		}
 
-		// Fallback: inject before "return s" if the v1 pattern wasn't found
 		if insertAt == -1 {
 			for i, line := range lines {
 				if strings.TrimSpace(line) == "return s" {
@@ -492,11 +433,3 @@ func (c *Create) appendToHTTPRouter() {
 		log.Printf("warn: failed to update %s: %v", httpFile, err)
 	}
 }
-
-// func containsFilterString(line string) bool {
-// 	print(line)
-// 	if strings.Contains(line, "return r") {
-// 		return true
-// 	}
-// 	return false
-// }

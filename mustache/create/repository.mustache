@@ -1,71 +1,64 @@
 package repository
 
 import (
-    "github.com/pkg/errors"
-    "context"
-    
-    "{{ .ProjectName }}/source/model"
+	"context"
+
+	"github.com/pkg/errors"
+
+	"{{ .ProjectName }}/source/model"
 )
 
 type {{ .StructName }}Repository interface {
-    GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
-    Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
-    Create{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{.StructName}}) (uint, error)
-    Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{.StructName}}) (uint, error)
-    Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error)
+	GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
+	Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
+	Create{{ .StructName }}(ctx context.Context, {{ .StructNameLowerFirst }} *model.{{ .StructName }}) (uint, error)
+	Update{{ .StructName }}(ctx context.Context, {{ .StructNameLowerFirst }} *model.{{ .StructName }}) (uint, error)
+	Delete{{ .StructName }}(ctx context.Context, id uint) error
 }
 
 type {{ .StructNameLowerFirst }}Repository struct {
-    *Repository
+	*Repository
 }
 
 func New{{ .StructName }}Repository(repository *Repository) {{ .StructName }}Repository {
-    return &{{ .StructNameLowerFirst }}Repository{
-         Repository: repository,
-    }
+	return &{{ .StructNameLowerFirst }}Repository{
+		Repository: repository,
+	}
 }
 
 func (r *{{ .StructNameLowerFirst }}Repository) GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error) {
-    var {{ .StructNameLowerFirst }} []model.{{ .StructName }}
-
-    if err := r.db.Find(&{{ .StructNameLowerFirst }}).Error; err != nil {
-        return nil, errors.Wrap(err, "failed to get all users")
-    }
-
-    return &{{ .StructNameLowerFirst }}, nil
+	var items []model.{{ .StructName }}
+	if err := r.db.WithContext(ctx).Find(&items).Error; err != nil {
+		return nil, errors.Wrap(err, "failed to get all {{ .StructNameLowerFirst }}")
+	}
+	return &items, nil
 }
-
 
 func (r *{{ .StructNameLowerFirst }}Repository) Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error) {
-    var {{ .StructNameLowerFirst }} model.{{ .StructName }}
-
-    if err := r.db.Where("id = ?", id).First(&{{ .StructNameLowerFirst }}).Error; err != nil {
-        return nil, errors.Wrap(err, "failed to get user by ID")
-    }
-
-    return &{{ .StructNameLowerFirst }}, nil
+	var item model.{{ .StructName }}
+	if err := r.db.WithContext(ctx).First(&item, id).Error; err != nil {
+		return nil, errors.Wrap(err, "{{ .StructNameLowerFirst }} not found")
+	}
+	return &item, nil
 }
 
-func (r *{{ .StructNameLowerFirst }}Repository) Create{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{ .StructName }}) (uint, error) {
-    if err := r.db.Create({{.StructNameLowerFirst}}).Error; err != nil {
-        return 0, errors.Wrap(err, "failed to create user")
-    }
-    
-    return {{.StructNameLowerFirst}}.ID, nil
+func (r *{{ .StructNameLowerFirst }}Repository) Create{{ .StructName }}(ctx context.Context, {{ .StructNameLowerFirst }} *model.{{ .StructName }}) (uint, error) {
+	if err := r.db.WithContext(ctx).Create({{ .StructNameLowerFirst }}).Error; err != nil {
+		return 0, errors.Wrap(err, "failed to create {{ .StructNameLowerFirst }}")
+	}
+	return {{ .StructNameLowerFirst }}.ID, nil
 }
 
-func (r *{{ .StructNameLowerFirst }}Repository) Update{{ .StructName }}(ctx context.Context, {{.StructNameLowerFirst}} *model.{{.StructName}}) (uint, error) {
-    if err := r.db.Save({{.StructNameLowerFirst}}).Error; err != nil {
-         return {{.StructNameLowerFirst}}.ID, errors.Wrap(err, "failed to update user")
-    }
-
-    return {{.StructNameLowerFirst}}.ID, nil
+func (r *{{ .StructNameLowerFirst }}Repository) Update{{ .StructName }}(ctx context.Context, {{ .StructNameLowerFirst }} *model.{{ .StructName }}) (uint, error) {
+	if err := r.db.WithContext(ctx).Save({{ .StructNameLowerFirst }}).Error; err != nil {
+		return 0, errors.Wrap(err, "failed to update {{ .StructNameLowerFirst }}")
+	}
+	return {{ .StructNameLowerFirst }}.ID, nil
 }
 
-func (r *{{ .StructNameLowerFirst }}Repository) Delete{{ .StructName }}(ctx context.Context, id uint) (uint, error) {
-    if err := r.db.Delete(&model.{{ .StructName }}{}, id).Error; err != nil {
-        return id, errors.Wrap(err, "failed to delete user")
-    }
-
-    return id, nil
+func (r *{{ .StructNameLowerFirst }}Repository) Delete{{ .StructName }}(ctx context.Context, id uint) error {
+	if err := r.db.WithContext(ctx).Delete(&model.{{ .StructName }}{}, id).Error; err != nil {
+		return errors.Wrap(err, "failed to delete {{ .StructNameLowerFirst }}")
+	}
+	return nil
 }

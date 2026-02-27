@@ -1,92 +1,101 @@
 package handler
 
 import (
-    "github.com/gin-gonic/gin"
-    "github.com/pkg/errors"
-    "go.uber.org/zap"
-    "net/http"
+	"net/http"
 
-    "{{ .ProjectName }}/pkg/helper/resp"
-    "{{ .ProjectName }}/source/service"
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
+	"{{ .ProjectName }}/pkg/helper/resp"
+	"{{ .ProjectName }}/source/service"
 )
 
 type {{ .StructName }}Handler struct {
-    *Handler
-    {{ .StructNameLowerFirst }}Service service.{{ .StructName }}Service
+	*Handler
+	{{ .StructNameLowerFirst }}Service service.{{ .StructName }}Service
 }
 
 func New{{ .StructName }}Handler(handler *Handler, {{ .StructNameLowerFirst }}Service service.{{ .StructName }}Service) *{{ .StructName }}Handler {
-    return &{{ .StructName }}Handler{
-        Handler:              handler,
-        {{ .StructNameLowerFirst }}Service: {{ .StructNameLowerFirst }}Service,
-    }
+	return &{{ .StructName }}Handler{
+		Handler:                       handler,
+		{{ .StructNameLowerFirst }}Service: {{ .StructNameLowerFirst }}Service,
+	}
 }
 
 func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
-    var params struct {
-        Id uint `uri:"id" binding:"required"`
-    }
+	var params struct {
+		Id uint `uri:"id" binding:"required"`
+	}
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		resp.HandleError(ctx, http.StatusBadRequest, err.Error(), nil)
+		return
+	}
 
-    if err := ctx.ShouldBindUri(&params); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, err.Error(), nil)
-        return
-    }
+	{{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .StructName }}ById(ctx, params.Id)
+	if err != nil {
+		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
 
-    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .StructName }}ById(ctx, params.Id)
-    h.logger.Info("Get{{ .FileName }}ByID", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
-
-    if err != nil {
-        resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
-        return
-    }
-
-    resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }})
+	h.logger.Info("Get{{ .StructName }}ById", zap.Any("id", params.Id))
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }})
 }
 
 func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
-    {{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .StructName }}(ctx)
-    h.logger.Info("GetAll{{ .FileName }}", zap.Any("{{ .StructNameLowerFirst }}", {{ .StructNameLowerFirst }}))
+	{{ .StructNameLowerFirst }}s, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .StructName }}(ctx)
+	if err != nil {
+		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
 
-    if err != nil {
-        resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
-        return
-    }
-
-    resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }})
+	h.logger.Info("GetAll{{ .StructName }}")
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }}s)
 }
 
 func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
-    req := new(service.Create{{.StructName}}Request)
+	req := new(service.Create{{ .StructName }}Request)
+	if err := ctx.ShouldBindJSON(req); err != nil {
+		resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
+		return
+	}
 
-    if err := ctx.ShouldBindJSON(req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
-        return
-    }
+	if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{ .StructName }}(ctx, req); err != nil {
+		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
 
-       if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{ .StructName }}(ctx, req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
-        return
-    }
-
-    resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
 }
 
 func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
-    req := new(service.Update{{ .StructName }}Request)
+	req := new(service.Update{{ .StructName }}Request)
+	if err := ctx.ShouldBindJSON(req); err != nil {
+		resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
+		return
+	}
 
-    if err := ctx.ShouldBindJSON(req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
-        return
-    }
+	if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{ .StructName }}(ctx, req); err != nil {
+		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
 
-       if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{ .StructName }}(ctx, req); err != nil {
-        resp.HandleError(ctx, http.StatusBadRequest, errors.Wrap(err, "invalid request").Error(), nil)
-        return
-    }
-
-    resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
 }
 
 func (h *{{ .StructName }}Handler) Delete{{ .StructName }}(ctx *gin.Context) {
-    resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
+	var params struct {
+		Id uint `uri:"id" binding:"required"`
+	}
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		resp.HandleError(ctx, http.StatusBadRequest, err.Error(), nil)
+		return
+	}
+
+	if err := h.{{ .StructNameLowerFirst }}Service.Delete{{ .StructName }}(ctx, params.Id); err != nil {
+		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
 }
