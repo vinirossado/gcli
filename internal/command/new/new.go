@@ -133,47 +133,8 @@ func (p *Project) cloneTemplate() (bool, error) {
 			return false, err
 		}
 	}
-	var repo string
-
-	if repoURL == "" {
-		layout := ""
-		prompt := &survey.Select{
-			Message: "Please select a layout",
-			Options: []string{
-				"Advanced",
-				"Lite (WIP)",
-				"Basic (WIP)",
-			},
-			Description: func(value string, index int) string {
-				switch index {
-				case 1:
-					return "Lightweight project structure — work in progress"
-				case 2:
-					return "Minimal project structure — work in progress"
-				default:
-					return "Full-featured: Wire, Gin, JWT, GORM, Redis, rate limiting, and more"
-				}
-			},
-		}
-		err := survey.AskOne(prompt, &layout)
-		if err != nil {
-			return false, err
-		}
-		switch layout {
-		case "Advanced":
-			repo = config.RepoFullStructure
-		case "Lite (WIP)":
-			repo = config.RepoLiteStructure
-		default:
-			repo = config.RepoBasicStructure
-		}
-
-		err = os.RemoveAll(p.ProjectName)
-		if err != nil {
-			fmt.Println("remove old new error: ", err)
-			return false, err
-		}
-	} else {
+	repo := config.RepoFullStructure
+	if repoURL != "" {
 		repo = repoURL
 	}
 
