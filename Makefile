@@ -46,8 +46,8 @@ debug-create-all: debug-build ## Create handler+service+repository+model in debu
 debug-dlv: ## Start Delve headless on :2345 (attach from IDE)  [ARGS="create handler user"]
 	dlv debug --headless --listen=:2345 --api-version=2 --wd $(DEBUG_DIR) . -- $(ARGS)
 
-debug-test: ## Run repository integration tests in debug/ (requires Docker)  [NAME=order]
-	cd $(DEBUG_DIR) && go test ./source/repository/ -v -run "Test$(shell echo $(NAME) | awk '{print toupper(substr($$0,1,1)) substr($$0,2)}')" -timeout 120s
+debug-test: ## Run all repository integration tests in debug/ (requires Docker)
+	cd $(DEBUG_DIR) && go test ./source/repository/... -v -timeout 120s
 
 debug-clean: ## Remove only generated (untracked) files and restore all modified template files
 	cd $(DEBUG_DIR) && git clean -fd \
