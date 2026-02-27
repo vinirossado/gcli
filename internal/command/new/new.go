@@ -133,9 +133,36 @@ func (p *Project) cloneTemplate() (bool, error) {
 			return false, err
 		}
 	}
-	repo := config.RepoFullStructure
+	var repo string
 	if repoURL != "" {
 		repo = repoURL
+	} else {
+		layout := ""
+		prompt := &survey.Select{
+			Message: "Select a template",
+			Options: []string{
+				// Add new templates here once they are production-ready.
+				// Example: "Lite",
+				"Advanced",
+			},
+			Description: func(value string, index int) string {
+				switch value {
+				case "Lite":
+					return "Lightweight structure: Wire, Gin, JWT, GORM"
+				default:
+					return "Full-featured: Wire, Gin, JWT, GORM, Redis, rate limiting, and more"
+				}
+			},
+		}
+		if err := survey.AskOne(prompt, &layout); err != nil {
+			return false, err
+		}
+		switch layout {
+		case "Lite":
+			repo = config.RepoLiteStructure
+		default:
+			repo = config.RepoFullStructure
+		}
 	}
 
 	cmd := exec.Command("git", "clone", repo, p.ProjectName)
