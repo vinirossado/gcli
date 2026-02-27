@@ -1,0 +1,93 @@
+package repository_test
+
+import (
+	"context"
+	"testing"
+
+	"github.com/glebarez/sqlite"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
+	"{{ .ProjectName }}/pkg/logger"
+	"{{ .ProjectName }}/source/model"
+	"{{ .ProjectName }}/source/repository"
+)
+
+func setup{{ .StructName }}DB(t *testing.T) repository.{{ .StructName }}Repository {
+	t.Helper()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&model.{{ .StructName }}{}))
+	log := &logger.Logger{Logger: zap.NewNop()}
+	return repository.New{{ .StructName }}Repository(repository.NewRepository(log, db))
+}
+
+func new{{ .StructName }}Entity() *model.{{ .StructName }} {
+	return &model.{{ .StructName }}{
+{{ if .Properties }}{{ range $name, $type := .Properties }}		{{ $name }}: {{ testValue $type }},
+{{ end }}{{ end }}	}
+}
+
+func Test{{ .StructName }}_Create(t *testing.T) {
+	repo := setup{{ .StructName }}DB(t)
+	ctx := context.Background()
+
+	id, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
+	require.NoError(t, err)
+	assert.Greater(t, id, uint(0))
+}
+
+func Test{{ .StructName }}_GetById(t *testing.T) {
+	repo := setup{{ .StructName }}DB(t)
+	ctx := context.Background()
+
+	id, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
+	require.NoError(t, err)
+
+	found, err := repo.Get{{ .StructName }}ById(ctx, id)
+	require.NoError(t, err)
+	assert.Equal(t, id, found.ID)
+}
+
+func Test{{ .StructName }}_GetAll(t *testing.T) {
+	repo := setup{{ .StructName }}DB(t)
+	ctx := context.Background()
+
+	for range 3 {
+		_, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
+		require.NoError(t, err)
+	}
+
+	all, err := repo.GetAll{{ .StructName }}(ctx)
+	require.NoError(t, err)
+	assert.Len(t, *all, 3)
+}
+
+func Test{{ .StructName }}_Update(t *testing.T) {
+	repo := setup{{ .StructName }}DB(t)
+	ctx := context.Background()
+
+	entity := new{{ .StructName }}Entity()
+	id, err := repo.Create{{ .StructName }}(ctx, entity)
+	require.NoError(t, err)
+
+	entity.ID = id
+	_, err = repo.Update{{ .StructName }}(ctx, entity)
+	require.NoError(t, err)
+}
+
+func Test{{ .StructName }}_Delete(t *testing.T) {
+	repo := setup{{ .StructName }}DB(t)
+	ctx := context.Background()
+
+	id, err := repo.Create{{ .StructName }}(ctx, new{{ .StructName }}Entity())
+	require.NoError(t, err)
+
+	err = repo.Delete{{ .StructName }}(ctx, id)
+	require.NoError(t, err)
+
+	_, err = repo.Get{{ .StructName }}ById(ctx, id)
+	assert.Error(t, err, "expected error after delete")
+}

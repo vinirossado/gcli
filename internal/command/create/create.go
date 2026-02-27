@@ -111,6 +111,16 @@ func runCreate(cmd *cobra.Command, args []string) {
 		c.CreateType = "router"
 		c.generateFile()
 
+		// Integration test — lives beside the repository file
+		origName := c.FileName
+		c.CreateType = "test"
+		c.FilePath = "source/repository/"
+		c.FileName = origName + "_test"
+		c.generateFile()
+		c.FilePath = ""
+		c.FileName = origName
+		c.CreateType = "all"
+
 		c.appendToModels()
 		c.appendToServerWire()
 		c.appendToMigrationWire()
@@ -139,6 +149,23 @@ func parseProperties(input string) map[string]string {
 		}
 	}
 	return props
+}
+
+// testValueForType returns a hardcoded Go literal usable as a test value for a given Go type.
+func testValueForType(goType string) string {
+	switch strings.ToLower(goType) {
+	case "string":
+		return `"test"`
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64":
+		return "1"
+	case "float32", "float64":
+		return "1.0"
+	case "bool":
+		return "true"
+	default:
+		return "nil"
+	}
 }
 
 // gormTagForType returns a GORM struct tag for a given Go type.
@@ -192,9 +219,10 @@ func (c *Create) generateFile() {
 	}(f)
 
 	funcMap := template.FuncMap{
-		"snake":   strutil.SnakeCase,
-		"lower":   strings.ToLower,
-		"gormTag": gormTagForType,
+		"snake":     strutil.SnakeCase,
+		"lower":     strings.ToLower,
+		"gormTag":   gormTagForType,
+		"testValue": testValueForType,
 	}
 
 	var t *template.Template
