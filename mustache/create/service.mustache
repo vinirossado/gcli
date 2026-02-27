@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 
 	"{{ .ProjectName }}/source/model"
 	"{{ .ProjectName }}/source/repository"
 )
+
+// ---- Request DTOs ----
 
 type Create{{ .StructName }}Request struct {
 {{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}" binding:"required"`
@@ -18,13 +21,35 @@ type Update{{ .StructName }}Request struct {
 {{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
 {{ end }}}
 
+// ---- Response DTO ----
+
+type {{ .StructName }}Response struct {
+	Id        uint      `json:"id"`
+{{ range $name, $type := .Properties }}	{{ $name }} {{ $type }} `json:"{{ snake $name }}"`
+{{ end }}	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func to{{ .StructName }}Response(m *model.{{ .StructName }}) *{{ .StructName }}Response {
+	return &{{ .StructName }}Response{
+		Id:        m.ID,
+{{ range $name, $type := .Properties }}		{{ $name }}: m.{{ $name }},
+{{ end }}		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+	}
+}
+
+// ---- Interface ----
+
 type {{ .StructName }}Service interface {
-	GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error)
-	Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error)
-	Create{{ .StructName }}(ctx context.Context, req *Create{{ .StructName }}Request) (uint, error)
-	Update{{ .StructName }}(ctx context.Context, req *Update{{ .StructName }}Request) (uint, error)
+	GetAll{{ .StructName }}(ctx context.Context) ([]{{ .StructName }}Response, error)
+	Get{{ .StructName }}ById(ctx context.Context, id uint) (*{{ .StructName }}Response, error)
+	Create{{ .StructName }}(ctx context.Context, req *Create{{ .StructName }}Request) (*{{ .StructName }}Response, error)
+	Update{{ .StructName }}(ctx context.Context, req *Update{{ .StructName }}Request) (*{{ .StructName }}Response, error)
 	Delete{{ .StructName }}(ctx context.Context, id uint) error
 }
+
+// ---- Implementation ----
 
 type {{ .StructNameLowerFirst }}Service struct {
 	*Service
@@ -38,34 +63,47 @@ func New{{ .StructName }}Service(service *Service, {{ .StructNameLowerFirst }}Re
 	}
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) GetAll{{ .StructName }}(ctx context.Context) (*[]model.{{ .StructName }}, error) {
-	return s.{{ .StructNameLowerFirst }}Repository.GetAll{{ .StructName }}(ctx)
-}
-
-func (s *{{ .StructNameLowerFirst }}Service) Get{{ .StructName }}ById(ctx context.Context, id uint) (*model.{{ .StructName }}, error) {
-	{{ .StructNameLowerFirst }}, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, id)
+func (s *{{ .StructNameLowerFirst }}Service) GetAll{{ .StructName }}(ctx context.Context) ([]{{ .StructName }}Response, error) {
+	items, err := s.{{ .StructNameLowerFirst }}Repository.GetAll{{ .StructName }}(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return {{ .StructNameLowerFirst }}, nil
+	responses := make([]{{ .StructName }}Response, 0, len(*items))
+	for i := range *items {
+		responses = append(responses, *to{{ .StructName }}Response(&(*items)[i]))
+	}
+	return responses, nil
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context.Context, req *Create{{ .StructName }}Request) (uint, error) {
+func (s *{{ .StructNameLowerFirst }}Service) Get{{ .StructName }}ById(ctx context.Context, id uint) (*{{ .StructName }}Response, error) {
+	item, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return to{{ .StructName }}Response(item), nil
+}
+
+func (s *{{ .StructNameLowerFirst }}Service) Create{{ .StructName }}(ctx context.Context, req *Create{{ .StructName }}Request) (*{{ .StructName }}Response, error) {
 	entity := &model.{{ .StructName }}{}
 {{ range $name, $type := .Properties }}	entity.{{ $name }} = req.{{ $name }}
-{{ end }}	return s.{{ .StructNameLowerFirst }}Repository.Create{{ .StructName }}(ctx, entity)
+{{ end }}	if _, err := s.{{ .StructNameLowerFirst }}Repository.Create{{ .StructName }}(ctx, entity); err != nil {
+		return nil, err
+	}
+	return to{{ .StructName }}Response(entity), nil
 }
 
-func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, req *Update{{ .StructName }}Request) (uint, error) {
+func (s *{{ .StructNameLowerFirst }}Service) Update{{ .StructName }}(ctx context.Context, req *Update{{ .StructName }}Request) (*{{ .StructName }}Response, error) {
 	_, err := s.{{ .StructNameLowerFirst }}Repository.Get{{ .StructName }}ById(ctx, req.Id)
 	if err != nil {
-		return 0, errors.New("{{ .StructNameLowerFirst }} not found")
+		return nil, errors.New("{{ .StructNameLowerFirst }} not found")
 	}
 
-	entity := &model.{{ .StructName }}{}
+	entity := &model.{{ .StructName }}{ID: req.Id}
 {{ range $name, $type := .Properties }}	entity.{{ $name }} = req.{{ $name }}
-{{ end }}	entity.ID = req.Id
-	return s.{{ .StructNameLowerFirst }}Repository.Update{{ .StructName }}(ctx, entity)
+{{ end }}	if _, err := s.{{ .StructNameLowerFirst }}Repository.Update{{ .StructName }}(ctx, entity); err != nil {
+		return nil, err
+	}
+	return to{{ .StructName }}Response(entity), nil
 }
 
 func (s *{{ .StructNameLowerFirst }}Service) Delete{{ .StructName }}(ctx context.Context, id uint) error {

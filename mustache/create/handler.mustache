@@ -32,25 +32,25 @@ func (h *{{ .StructName }}Handler) Get{{ .StructName }}ById(ctx *gin.Context) {
 		return
 	}
 
-	{{ .StructNameLowerFirst }}, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .StructName }}ById(ctx, params.Id)
+	result, err := h.{{ .StructNameLowerFirst }}Service.Get{{ .StructName }}ById(ctx, params.Id)
 	if err != nil {
-		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		resp.HandleError(ctx, http.StatusNotFound, err.Error(), nil)
 		return
 	}
 
-	h.logger.Info("Get{{ .StructName }}ById", zap.Any("id", params.Id))
-	resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }})
+	h.logger.Info("Get{{ .StructName }}ById", zap.Uint("id", params.Id))
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", result)
 }
 
 func (h *{{ .StructName }}Handler) GetAll{{ .StructName }}(ctx *gin.Context) {
-	{{ .StructNameLowerFirst }}s, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .StructName }}(ctx)
+	results, err := h.{{ .StructNameLowerFirst }}Service.GetAll{{ .StructName }}(ctx)
 	if err != nil {
 		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	h.logger.Info("GetAll{{ .StructName }}")
-	resp.HandleSuccess(ctx, http.StatusOK, "Success", {{ .StructNameLowerFirst }}s)
+	h.logger.Info("GetAll{{ .StructName }}", zap.Int("count", len(results)))
+	resp.HandleSuccess(ctx, http.StatusOK, "Success", results)
 }
 
 func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
@@ -60,12 +60,13 @@ func (h *{{ .StructName }}Handler) Create{{ .StructName }}(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := h.{{ .StructNameLowerFirst }}Service.Create{{ .StructName }}(ctx, req); err != nil {
+	result, err := h.{{ .StructNameLowerFirst }}Service.Create{{ .StructName }}(ctx, req)
+	if err != nil {
 		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
+	resp.HandleSuccess(ctx, http.StatusCreated, "Created", result)
 }
 
 func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
@@ -75,12 +76,13 @@ func (h *{{ .StructName }}Handler) Update{{ .StructName }}(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := h.{{ .StructNameLowerFirst }}Service.Update{{ .StructName }}(ctx, req); err != nil {
+	result, err := h.{{ .StructNameLowerFirst }}Service.Update{{ .StructName }}(ctx, req)
+	if err != nil {
 		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
+	resp.HandleSuccess(ctx, http.StatusOK, "Updated", result)
 }
 
 func (h *{{ .StructName }}Handler) Delete{{ .StructName }}(ctx *gin.Context) {
@@ -93,9 +95,9 @@ func (h *{{ .StructName }}Handler) Delete{{ .StructName }}(ctx *gin.Context) {
 	}
 
 	if err := h.{{ .StructNameLowerFirst }}Service.Delete{{ .StructName }}(ctx, params.Id); err != nil {
-		resp.HandleError(ctx, http.StatusInternalServerError, err.Error(), nil)
+		resp.HandleError(ctx, http.StatusNotFound, err.Error(), nil)
 		return
 	}
 
-	resp.HandleSuccess(ctx, http.StatusOK, "Success", nil)
+	resp.HandleSuccess(ctx, http.StatusOK, "Deleted", nil)
 }
